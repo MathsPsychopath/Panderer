@@ -1,6 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import { Box, Button, Typography, useMediaQuery } from "@mui/material";
-import { collection } from "firebase/firestore";
+import {
+  Box,
+  Button,
+  Typography,
+  useMediaQuery,
+  Link as MUILink,
+} from "@mui/material";
+// import { collection } from "firebase/firestore";
+import Spline from "@splinetool/react-spline";
 import { db } from "../../firebase";
 import {
   PrimaryButton,
@@ -12,9 +19,10 @@ import {
   IChartApi,
   ISeriesApi,
   Time,
-  UTCTimestamp,
   createChart,
 } from "lightweight-charts";
+import { AutoAwesome, EmojiPeople, Link } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
 
 const Header = () => (
   <Box className="flex items-center justify-between p-8 text-2xl font-bold text-text">
@@ -33,7 +41,7 @@ const Svg = ({ renderBottom }: { renderBottom: boolean }) => {
       width="100%"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      className="h-[80vh] min-w-[700px] md:h-[100vh]"
+      className="z-0 h-[80vh] min-w-[700px] md:h-[100vh]"
       version="1.1"
       preserveAspectRatio="none"
     >
@@ -155,6 +163,36 @@ const Candlesticks = () => {
   return <Box id="candlesticks" className="h-full w-full" />;
 };
 
+const Svg2 = () => {
+  return (
+    <svg
+      width="100%"
+      viewBox="0 0 574 725"
+      preserveAspectRatio="none"
+      className="absolute inset-0 h-[75rem] lg:h-[52.5rem]"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0 724.5V150L574 0.5V602L0 724.5Z" fill="#16284E" />
+    </svg>
+  );
+};
+
+const Footer = () => {
+  return (
+    <svg
+      width="100%"
+      viewBox="0 0 574 141"
+      fill="none"
+      preserveAspectRatio="none"
+      className="absolute inset-0 bg-secondary-button"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0 140.5V75L574 0.5V140.5H0Z" fill="#2F2074" />
+    </svg>
+  );
+};
+
 export default function Landing() {
   const showHeroUI = useMediaQuery("(min-width:768px)");
   return (
@@ -194,7 +232,7 @@ export default function Landing() {
           <Box>{showHeroUI && <Hero />}</Box>
         </Box>
       </Box>
-      <Box className="flex flex-col items-center justify-evenly gap-20 bg-secondary-button py-32 lg:flex-row lg:items-start">
+      <Box className="flex flex-col items-center justify-evenly gap-8 bg-secondary-button py-32 lg:flex-row lg:items-start">
         <Box className="flex flex-col items-center gap-8 md:items-start">
           <Typography variant="h6" className=" text-primary-button">
             Real time responses
@@ -217,6 +255,140 @@ export default function Landing() {
         </Box>
         <Box className="h-80 w-80 rounded-xl bg-black p-2">
           <Candlesticks />
+        </Box>
+      </Box>
+      <Box className="relative h-[1000px]">
+        <Svg2 />
+        <Box className="absolute inset-0 z-[-1] h-[40rem] w-full bg-secondary-button" />
+        <Box className="absolute top-44 flex w-full flex-col items-center justify-evenly gap-8 text-white md:top-28 md:mt-[10rem] lg:flex-row lg:items-start">
+          <Box className="flex flex-col items-center gap-8 text-center md:items-start md:text-start">
+            <Typography variant="h6" className="text-[#c3d0ed]">
+              Dedicated management suite
+            </Typography>
+            <Typography variant="h4" className="w-[30rem] lg:w-[40rem]">
+              Setup quickly with easy to manage tools
+            </Typography>
+            <Box className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+              <Typography variant="body1" className="w-80">
+                Streaming is already fast-paced. Get peace of mind here with our
+                suite allows fast and easy setup of polls, quick destruction,
+                and overall time saving.
+              </Typography>
+              <Typography variant="body1" className="w-80">
+                We've created the simplest interface, so go do what it is you do
+                best live with speed.
+              </Typography>
+            </Box>
+            <SecondaryButton className="text-black">Learn more</SecondaryButton>
+          </Box>
+          <Box className="h-80 w-80 rounded-xl bg-black p-2">
+            <Spline scene="https://prod.spline.design/9at9Js33NcdK-JAT/scene.splinecode" />
+          </Box>
+        </Box>
+      </Box>
+      <Box className="flex justify-center pb-40">
+        <Box className="flex flex-col items-center gap-8 text-center md:items-start md:text-start">
+          <Typography variant="h6" className="text-primary-button">
+            Why Panderer
+          </Typography>
+          <Typography variant="h4" className="w-[30rem] lg:w-[40rem]">
+            A streamer-first approach to viewer interaction
+          </Typography>
+          <Box className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+            <Box className="">
+              <Box className="flex items-center gap-2 border-0 border-l-2 border-solid border-accent pl-2">
+                <EmojiPeople className="hover:animate-bounce" />
+                <Typography variant="caption" className="hover:text-accent">
+                  Engage
+                </Typography>
+              </Box>
+              <Typography variant="body1" className="w-80">
+                Engaging with your audience like never before with live polling
+                and capture their opinions in seconds.
+              </Typography>
+            </Box>
+            <Box>
+              <Box className="flex items-center gap-2 border-0 border-l-2 border-solid border-accent pl-2">
+                <AutoAwesome className="hover:animate-ping" />
+                <Typography variant="caption" className="hover:text-accent">
+                  Enhance
+                </Typography>
+              </Box>
+              <Typography variant="body1" className="w-80">
+                Enhance your viewers' experience by gamifying the poll. Have
+                sides like buyers and sellers of the stock market.
+              </Typography>
+            </Box>
+            <Box>
+              <Box className="flex items-center gap-2 border-0 border-l-2 border-solid border-accent pl-2">
+                <Link className="hover:animate-pulse" />
+                <Typography variant="caption" className="hover:text-accent">
+                  Integrate
+                </Typography>
+              </Box>
+              <Typography variant="body1" className="w-80">
+                Integrate seamlessly with your OBS setup with a dedicated
+                browser source page to streamline the experience.
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box className="flex flex-col items-center justify-center gap-20 bg-secondary-button p-20 lg:flex-row lg:gap-40">
+        <Box className="flex flex-col gap-8">
+          <Box className="flex w-[25rem] flex-col gap-4">
+            <Typography variant="h4">Ready to start?</Typography>
+            <Typography>
+              Sign up or login with Google and start a new polling instance. You
+              can also contact to see if your use case can be used with
+              Panderer.
+            </Typography>
+          </Box>
+          <Box className="flex gap-4">
+            <PrimaryButton className="py-2">Start now</PrimaryButton>
+            <SecondaryButton className="py-2">Contact support</SecondaryButton>
+          </Box>
+        </Box>
+        <Box className="flex w-60 flex-col gap-4">
+          <Typography variant="h6" className="text-primary-button">
+            Free until it's not.
+          </Typography>
+          <Typography>
+            Right now, Panderer is free of costs and charges to use. There are
+            no hidden or future fees by using now.
+          </Typography>
+        </Box>
+      </Box>
+      <Box className="relative flex h-40 items-center justify-center text-white lg:h-60">
+        <Footer />
+        <Box className="z-10 flex flex-col items-center pt-20">
+          <Typography variant="button">Panderer</Typography>
+          <Box className="flex gap-2 text-white">
+            <MUILink
+              component={RouterLink}
+              to="#"
+              className="font-sans text-white"
+              underline="none"
+            >
+              About
+            </MUILink>
+            <MUILink
+              component={RouterLink}
+              to="#"
+              className="font-sans text-white"
+              underline="none"
+            >
+              Contact
+            </MUILink>
+            <MUILink
+              component={RouterLink}
+              to="#"
+              className="font-sans text-white"
+              underline="none"
+            >
+              Terms
+            </MUILink>
+          </Box>
         </Box>
       </Box>
     </Box>

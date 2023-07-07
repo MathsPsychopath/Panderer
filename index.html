@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" style="position: relative">
+<html lang="en" style="position: relative; overflow-x: hidden">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1"
+    />
     <title>Panderer</title>
     <link
       rel="stylesheet"
@@ -17,8 +20,8 @@
     <meta name="msapplication-TileColor" content="#da532c" />
     <meta name="theme-color" content="#ffffff" />
   </head>
-  <body style="overflow-x: hidden">
-    <div id="root" style="height: 100vh"></div>
+  <body style="margin: 0">
+    <div id="root" style="width: 100%"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

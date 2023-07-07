@@ -238,7 +238,7 @@ function DesktopHero() {
       </Box>
 
       <Box className="relative h-[25rem] overflow-hidden bg-secondary-button p-4">
-        <Box className="absolute right-5 flex h-[17rem] w-4/5 flex-col gap-4 bg-background p-8">
+        <Box className="absolute right-5 flex h-[20rem] w-4/5 flex-col gap-4 bg-background p-8 pb-5">
           <Box className="flex items-center justify-between">
             <Box className="ml-28 flex items-center gap-4">
               <img
@@ -254,8 +254,20 @@ function DesktopHero() {
             </Box>
           </Box>
           <DesktopChart />
+          <Box className="flex h-10 justify-end gap-4">
+            <SecondaryButton className="pointer-events-none">
+              Abstain
+            </SecondaryButton>
+            <PrimaryButton className="pointer-events-none">
+              Downvote
+            </PrimaryButton>
+            <PrimaryButton className="pointer-events-none">
+              Upvote
+            </PrimaryButton>
+          </Box>
         </Box>
-        <Box className="absolute -bottom-5 right-5 flex w-3/5 flex-col gap-4 bg-background p-8">
+
+        <Box className="absolute bottom-[-3rem] right-5 flex w-3/5 flex-col gap-4 bg-background p-8">
           <Typography>Streamer information</Typography>
         </Box>
       </Box>

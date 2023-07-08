@@ -10,18 +10,72 @@ import {
   SignalCellular4Bar,
 } from "@mui/icons-material";
 import { IChartApi, UTCTimestamp, createChart } from "lightweight-charts";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   PrimaryButton,
   SecondaryButton,
 } from "../../../components/common/Buttons";
 import "./component.css";
 import logo from "./android-chrome-192x192.png";
+import LoadingBar from "react-top-loading-bar";
+
+const idSequence = [
+  { id: "lead", alreadyScrolled: false },
+  { id: "suite", alreadyScrolled: false },
+  { id: "reason", alreadyScrolled: false },
+  { id: "action", alreadyScrolled: false },
+];
 
 export default function MainHero() {
+  const [progress, setProgress] = useState(0);
+  const [timeoutIDs, setIDs] = useState<NodeJS.Timeout[]>([]);
+  const [interval, setIntID] = useState<NodeJS.Timer | null>(null);
+
+  const cancelWalkthrough = () => {
+    timeoutIDs.forEach((id) => clearTimeout(id));
+    clearInterval(interval!);
+    setIDs([]);
+    setIntID(null);
+    setProgress(0);
+  };
+
+  const walkthrough = () => {
+    let times = 1;
+    const intID = setInterval(() => {
+      setProgress((prev) => prev + 10);
+      if (times === 40) cancelWalkthrough();
+      if (times % 10 === 0) setProgress(0);
+      times++;
+    }, 1000);
+    setIntID(intID);
+    for (let i = 0; i < 4; i++) {
+      const id = setTimeout(() => {
+        document.getElementById(idSequence[i].id)?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 10000 * i);
+      setIDs((prev) => [...prev, id]);
+    }
+  };
+
   const showHeroUI = useMediaQuery("(min-width:768px)");
   return (
     <Box className="mx-10 mb-8 flex h-full flex-col xl:mx-20">
+      {interval && (
+        <LoadingBar
+          color="#2f2074"
+          progress={progress}
+          onLoaderFinished={() => setProgress(0)}
+        />
+      )}
+      {timeoutIDs.length > 0 && (
+        <PrimaryButton
+          className="fixed bottom-0 left-0 z-30 m-4 bg-accent"
+          onClick={() => cancelWalkthrough()}
+        >
+          Cancel walkthrough
+        </PrimaryButton>
+      )}
       <Box className="absolute inset-0 z-[-1]">
         <Svg renderBottom={!showHeroUI} />
       </Box>
@@ -42,13 +96,7 @@ export default function MainHero() {
           </Typography>
           <Box className="flex flex-col justify-center gap-4 sm:flex-row md:justify-normal">
             <PrimaryButton>Start now</PrimaryButton>
-            <SecondaryButton
-              onClick={() =>
-                document
-                  .getElementById("lead")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-            >
+            <SecondaryButton onClick={() => walkthrough()}>
               Learn more
             </SecondaryButton>
           </Box>

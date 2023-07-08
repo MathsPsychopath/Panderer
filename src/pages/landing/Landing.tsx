@@ -14,8 +14,11 @@ export default function Landing() {
       <MainHero />
       <Box id="lead" />
       <RealTimeSection />
+      <Box id="suite" />
       <SuiteSection />
+      <Box id="reason" />
       <ReasonSection />
+      <Box id="action" />
       <CallToAction />
       <FooterSection />
     </Box>

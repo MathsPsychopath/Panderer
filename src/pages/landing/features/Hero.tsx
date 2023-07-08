@@ -40,19 +40,29 @@ export default function MainHero() {
   };
 
   const walkthrough = () => {
-    let times = 1;
-    const intID = setInterval(() => {
-      setProgress((prev) => prev + 10);
-      if (times === 40) cancelWalkthrough();
-      if (times % 10 === 0) setProgress(0);
-      times++;
-    }, 1000);
-    setIntID(intID);
     for (let i = 0; i < 4; i++) {
-      const id = setTimeout(() => {
+      const id = setTimeout(async () => {
         document.getElementById(idSequence[i].id)?.scrollIntoView({
           behavior: "smooth",
         });
+        const progressBar = new Promise<NodeJS.Timer>((res) => {
+          let times = 1;
+          const intID = setInterval(() => {
+            setProgress((prev) => prev + 10);
+            setIntID(intID);
+            if (times > 9) {
+              clearInterval(intID);
+              res(intID);
+            }
+            times++;
+          }, 1000);
+        });
+        const intID = await progressBar;
+        setProgress(0);
+        console.log(intID);
+        clearInterval(intID);
+        setIntID(null);
+        setIDs(([_, ...rest]) => rest);
       }, 10000 * i);
       setIDs((prev) => [...prev, id]);
     }

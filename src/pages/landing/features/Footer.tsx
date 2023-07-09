@@ -25,15 +25,16 @@ export default function FooterSection() {
         <Box className="flex gap-2 text-white">
           <MUILink
             component={RouterLink}
-            to="#"
+            to="https://youtu.be/uFpK_r-jEXg"
             className="font-sans text-white"
             underline="none"
+            target="_blank"
           >
             About
           </MUILink>
           <MUILink
             component={RouterLink}
-            to="#"
+            to="https://discordapp.com/users/1127377226548117585"
             className="font-sans text-white"
             underline="none"
           >
@@ -41,7 +42,7 @@ export default function FooterSection() {
           </MUILink>
           <MUILink
             component={RouterLink}
-            to="#"
+            to="/terms"
             className="font-sans text-white"
             underline="none"
           >

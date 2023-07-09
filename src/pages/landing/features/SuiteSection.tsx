@@ -41,7 +41,7 @@ export default function SuiteSection() {
               best live with speed.
             </Typography>
           </Box>
-          <SecondaryButton className="text-black">Learn more</SecondaryButton>
+          <SecondaryButton className="text-black">See guide</SecondaryButton>
         </Box>
         <Box className="h-80 w-80 rounded-xl bg-black p-2">
           <Spline scene="https://prod.spline.design/9at9Js33NcdK-JAT/scene.splinecode" />

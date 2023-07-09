@@ -19,12 +19,7 @@ import "./component.css";
 import logo from "./android-chrome-192x192.png";
 import LoadingBar from "react-top-loading-bar";
 
-const idSequence = [
-  { id: "lead", alreadyScrolled: false },
-  { id: "suite", alreadyScrolled: false },
-  { id: "reason", alreadyScrolled: false },
-  { id: "action", alreadyScrolled: false },
-];
+const idSequence = ["lead", "suite", "reason", "action"];
 
 export default function MainHero() {
   const [progress, setProgress] = useState(0);
@@ -42,7 +37,7 @@ export default function MainHero() {
   const walkthrough = () => {
     for (let i = 0; i < 4; i++) {
       const id = setTimeout(async () => {
-        document.getElementById(idSequence[i].id)?.scrollIntoView({
+        document.getElementById(idSequence[i])?.scrollIntoView({
           behavior: "smooth",
         });
         const progressBar = new Promise<NodeJS.Timer>((res) => {
@@ -59,7 +54,6 @@ export default function MainHero() {
         });
         const intID = await progressBar;
         setProgress(0);
-        console.log(intID);
         clearInterval(intID);
         setIntID(null);
         setIDs(([_, ...rest]) => rest);

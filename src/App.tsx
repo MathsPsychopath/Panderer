@@ -3,6 +3,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Landing from "./pages/landing/Landing";
 import { StyledEngineProvider } from "@mui/material";
 import Terms from "./pages/docs/Terms";
+import Guide from "./pages/docs/Guide";
 
 const browserRouter = createBrowserRouter([
   {
@@ -12,6 +13,10 @@ const browserRouter = createBrowserRouter([
   {
     path: "/terms",
     element: <Terms />,
+  },
+  {
+    path: "/guide",
+    element: <Guide />,
   },
 ]);
 

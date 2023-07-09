@@ -10,9 +10,10 @@ export default function Terms() {
           gutterBottom
           className="h-20 w-full bg-primary-button text-center text-white "
         >
-          Terms and Conditions
+          Terms and Privacy Policy
         </Typography>
-
+        <Typography variant="body2">Updated on 09 July 2023</Typography>
+        <Typography variant="h6">Terms and Conditions</Typography>
         <Typography variant="body1" gutterBottom>
           By accessing and using our service, you accept and agree to be bound
           by the following terms and conditions.
@@ -80,7 +81,19 @@ export default function Terms() {
         </Typography>
 
         <Typography variant="body1" gutterBottom>
-          <b>5. Modification of Terms:</b>
+          <b>5. Real-Time Data:</b>
+          <ul>
+            <li>
+              The real-time data provided by our service is intended to be as
+              accurate as possible, but it may not always reflect the most
+              up-to-date information. We make reasonable efforts to ensure the
+              accuracy and timeliness of the data, but we cannot guarantee its
+              completeness or reliability.
+            </li>
+          </ul>
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          <b>6. Modification of Terms:</b>
           <br />
           We reserve the right to modify or update these terms and conditions at
           any time, without prior notice. By continuing to use our service after
@@ -178,8 +191,8 @@ export default function Terms() {
         </Typography>
 
         <Typography variant="body1" gutterBottom>
-          If you have any questions or concerns about these terms and
-          conditions, please contact us on{" "}
+          If you have any questions or concerns about these terms and conditions
+          or the privacy policy, please contact us on{" "}
           <Link href="https://discordapp.com/users/1127377226548117585">
             Discord
           </Link>

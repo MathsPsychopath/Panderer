@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import Spline from "@splinetool/react-spline";
 import { SecondaryButton } from "../../../components/common/Buttons";
+import { useNavigate } from "react-router-dom";
 
 const Svg2 = () => {
   return (
@@ -18,6 +19,7 @@ const Svg2 = () => {
 };
 
 export default function SuiteSection() {
+  const navigate = useNavigate();
   return (
     <Box className="relative h-[1000px]">
       <Svg2 />
@@ -41,7 +43,12 @@ export default function SuiteSection() {
               best live with speed.
             </Typography>
           </Box>
-          <SecondaryButton className="text-black">See guide</SecondaryButton>
+          <SecondaryButton
+            className="text-black"
+            onClick={() => navigate("/guide")}
+          >
+            See guide
+          </SecondaryButton>
         </Box>
         <Box className="h-80 w-80 rounded-xl bg-black p-2">
           <Spline scene="https://prod.spline.design/9at9Js33NcdK-JAT/scene.splinecode" />

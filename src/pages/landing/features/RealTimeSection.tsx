@@ -8,6 +8,7 @@ import {
 } from "lightweight-charts";
 import { useRef, useEffect } from "react";
 import { PrimaryButton } from "../../../components/common/Buttons";
+import { useNavigate } from "react-router-dom";
 
 const Candlesticks = () => {
   const chart = useRef<null | IChartApi>(null);
@@ -97,6 +98,7 @@ const Candlesticks = () => {
 };
 
 export default function RealTimeSection() {
+  const navigate = useNavigate();
   return (
     <Box className="flex flex-col items-center justify-evenly gap-8 bg-secondary-button py-32 lg:flex-row lg:items-start">
       <Box className="flex flex-col items-center gap-8 md:items-start">
@@ -117,7 +119,9 @@ export default function RealTimeSection() {
             instantly, powered by WebSocket and Firebase technology.
           </Typography>
         </Box>
-        <PrimaryButton className="w-40">Start a poll</PrimaryButton>
+        <PrimaryButton className="w-40" onClick={() => navigate("/start-poll")}>
+          Start a poll
+        </PrimaryButton>
       </Box>
       <Box className="h-80 w-80 rounded-xl bg-black p-2">
         <Candlesticks />

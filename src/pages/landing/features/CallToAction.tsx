@@ -3,8 +3,10 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../../../components/common/Buttons";
+import { useNavigate } from "react-router-dom";
 
 export default function CallToAction() {
+  const navigate = useNavigate();
   return (
     <Box className="flex flex-col items-center justify-center gap-20 bg-secondary-button p-20 lg:flex-row lg:gap-40">
       <Box className="flex flex-col gap-8">
@@ -16,8 +18,15 @@ export default function CallToAction() {
           </Typography>
         </Box>
         <Box className="flex gap-4">
-          <PrimaryButton className="py-2">Start now</PrimaryButton>
-          <SecondaryButton className="py-2">Contact support</SecondaryButton>
+          <PrimaryButton className="py-2" onClick={() => navigate("/login")}>
+            Start now
+          </PrimaryButton>
+          <SecondaryButton
+            className="py-2"
+            href="https://discordapp.com/users/1127377226548117585"
+          >
+            Contact support
+          </SecondaryButton>
         </Box>
       </Box>
       <Box className="flex w-60 flex-col gap-4">

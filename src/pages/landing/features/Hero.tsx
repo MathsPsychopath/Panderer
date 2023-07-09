@@ -18,6 +18,7 @@ import {
 import "./component.css";
 import logo from "./android-chrome-192x192.png";
 import LoadingBar from "react-top-loading-bar";
+import { useNavigate } from "react-router-dom";
 
 const idSequence = ["lead", "suite", "reason", "action"];
 
@@ -63,6 +64,7 @@ export default function MainHero() {
   };
 
   const showHeroUI = useMediaQuery("(min-width:768px)");
+  const navigate = useNavigate();
   return (
     <Box className="mx-10 mb-8 flex h-full flex-col xl:mx-20">
       {interval && (
@@ -99,7 +101,9 @@ export default function MainHero() {
             or gamify your public relations? Try today!
           </Typography>
           <Box className="flex flex-col justify-center gap-4 sm:flex-row md:justify-normal">
-            <PrimaryButton>Start now</PrimaryButton>
+            <PrimaryButton onClick={() => navigate("/dashboard")}>
+              Start now
+            </PrimaryButton>
             <SecondaryButton onClick={() => walkthrough()}>
               Learn more
             </SecondaryButton>
@@ -381,14 +385,17 @@ function Hero() {
   );
 }
 
-const Header = () => (
-  <Box className="flex items-center justify-between p-8 text-2xl font-bold text-text">
-    <Box className="flex gap-x-2 text-white">
-      <Typography variant="h5">Panderer</Typography>
+const Header = () => {
+  const navigate = useNavigate();
+  return (
+    <Box className="flex items-center justify-between p-8 text-2xl font-bold text-text">
+      <Box className="flex gap-x-2 text-white">
+        <Typography variant="h5">Panderer</Typography>
+      </Box>
+      <PrimaryButton onClick={() => navigate("/login")}>Login</PrimaryButton>
     </Box>
-    <PrimaryButton>Login</PrimaryButton>
-  </Box>
-);
+  );
+};
 
 const Svg = ({ renderBottom }: { renderBottom: boolean }) => {
   return (

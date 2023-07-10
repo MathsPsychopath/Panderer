@@ -1,9 +1,9 @@
 import "./App.css";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import Landing from "./pages/landing/Landing";
-import { Alert, Box, Snackbar, StyledEngineProvider } from "@mui/material";
-import Terms from "./pages/docs/Terms";
-import Guide from "./pages/docs/Guide";
+import { Alert, Snackbar, StyledEngineProvider } from "@mui/material";
+import Terms from "./pages/misc/Terms";
+import Guide from "./pages/misc/Guide";
 import AuthWrapper from "./pages/login/AuthWrapper";
 import { useContext } from "react";
 import { SnackbarContext } from "./components/context/SnackbarContext";
@@ -14,6 +14,8 @@ import {
   SignedIn,
   SignedOut,
 } from "@clerk/clerk-react";
+import NotFound from "./pages/misc/NotFound";
+import accountRoutes from "./pages/account/accountRoutes";
 
 const browserRouter = createBrowserRouter([
   {
@@ -45,21 +47,22 @@ const browserRouter = createBrowserRouter([
     ),
   },
   {
-    path: "/account",
+    path: "/account/*",
     element: (
       <>
         <SignedIn>
-          <h1>hello</h1>
+          <Outlet />
         </SignedIn>
         <SignedOut>
           <RedirectToSignIn />
         </SignedOut>
       </>
     ),
+    children: accountRoutes,
   },
   {
-    path: "/*",
-    element: <Box>Undefined</Box>,
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 

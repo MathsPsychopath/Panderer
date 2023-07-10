@@ -1,5 +1,4 @@
-import { Box, Link, List, ListItem, Typography } from "@mui/material";
-import React from "react";
+import { Box, Link, Typography } from "@mui/material";
 
 export default function Terms() {
   return (

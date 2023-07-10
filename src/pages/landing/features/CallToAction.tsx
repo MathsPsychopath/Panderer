@@ -13,8 +13,8 @@ export default function CallToAction() {
         <Box className="flex flex-col gap-4 md:w-[25rem]">
           <Typography variant="h4">Ready to start?</Typography>
           <Typography>
-            Sign up or login with Google and start a new polling instance. You
-            can also contact to see if your use case can be used with Panderer.
+            Sign up or login and start a new polling instance. You can also
+            contact to see if your use case can be used with Panderer.
           </Typography>
         </Box>
         <Box className="flex gap-4">

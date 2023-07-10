@@ -101,7 +101,7 @@ export default function MainHero() {
             or gamify your public relations? Try today!
           </Typography>
           <Box className="flex flex-col justify-center gap-4 sm:flex-row md:justify-normal">
-            <PrimaryButton onClick={() => navigate("/dashboard")}>
+            <PrimaryButton onClick={() => navigate("/account/dashboard")}>
               Start now
             </PrimaryButton>
             <SecondaryButton onClick={() => walkthrough()}>

@@ -24,12 +24,12 @@ export default function SuiteSection() {
     <Box className="relative h-[1000px]">
       <Svg2 />
       <Box className="absolute inset-0 z-[-1] h-[40rem] w-full bg-secondary-button" />
-      <Box className="absolute top-44 flex w-full flex-col items-center justify-evenly gap-8 text-white md:top-28 md:mt-[10rem] lg:flex-row lg:items-start">
+      <Box className="absolute top-52 flex w-full flex-col items-center justify-evenly gap-8 text-white md:top-28 md:mt-[10rem] lg:flex-row lg:items-start">
         <Box className="flex flex-col items-center gap-8 text-center md:items-start md:text-start">
           <Typography variant="h6" className="text-[#c3d0ed]">
             Dedicated management suite
           </Typography>
-          <Typography variant="h4" className="w-[30rem] lg:w-[40rem]">
+          <Typography variant="h4" className="md:w-[30rem] lg:w-[40rem]">
             Setup quickly with easy to manage tools
           </Typography>
           <Box className="flex flex-col items-center gap-8 md:flex-row md:items-start">

@@ -101,11 +101,11 @@ export default function RealTimeSection() {
   const navigate = useNavigate();
   return (
     <Box className="flex flex-col items-center justify-evenly gap-8 bg-secondary-button py-32 lg:flex-row lg:items-start">
-      <Box className="flex flex-col items-center gap-8 md:items-start">
+      <Box className="flex flex-col items-center gap-8 text-center md:items-start md:text-left">
         <Typography variant="h6" className=" text-primary-button">
           Real time responses
         </Typography>
-        <Typography variant="h4" className="w-[30rem] lg:w-[40rem]">
+        <Typography variant="h4" className="md:w-[30rem] lg:w-[40rem]">
           A fully synchronised platform for many concurrent users
         </Typography>
         <Box className="flex flex-col items-center gap-8 md:flex-row md:items-start">

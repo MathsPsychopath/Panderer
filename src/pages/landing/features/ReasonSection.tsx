@@ -8,7 +8,7 @@ export default function ReasonSection() {
         <Typography variant="h6" className="text-primary-button">
           Why Panderer
         </Typography>
-        <Typography variant="h4" className="w-[30rem] lg:w-[40rem]">
+        <Typography variant="h4" className="md:w-[30rem] lg:w-[40rem]">
           A streamer-first approach to viewer interaction
         </Typography>
         <Box className="flex flex-col flex-wrap items-center gap-8 md:items-start lg:flex-row">

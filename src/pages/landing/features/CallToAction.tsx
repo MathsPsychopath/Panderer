@@ -10,7 +10,7 @@ export default function CallToAction() {
   return (
     <Box className="flex flex-col items-center justify-center gap-20 bg-secondary-button p-20 lg:flex-row lg:gap-40">
       <Box className="flex flex-col gap-8">
-        <Box className="flex w-[25rem] flex-col gap-4">
+        <Box className="flex flex-col gap-4 md:w-[25rem]">
           <Typography variant="h4">Ready to start?</Typography>
           <Typography>
             Sign up or login with Google and start a new polling instance. You

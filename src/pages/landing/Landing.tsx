@@ -19,7 +19,7 @@ export default function Landing() {
   return (
     <Box>
       {showCookies && (
-        <Box className="fixed bottom-0 right-0 z-50 m-4 w-[30rem] rounded-md bg-text p-4 text-white">
+        <Box className="fixed bottom-0 right-0 z-50 m-4 rounded-md bg-text p-4 text-white md:w-[30rem]">
           <Typography variant="body1" className="whitespace-wrap">
             By using our website, you agree to our use of cookies outlined in
             the Terms, including advertising and essential cookies.

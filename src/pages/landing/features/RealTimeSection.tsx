@@ -119,7 +119,10 @@ export default function RealTimeSection() {
             instantly, powered by WebSocket and Firebase technology.
           </Typography>
         </Box>
-        <PrimaryButton className="w-40" onClick={() => navigate("/start-poll")}>
+        <PrimaryButton
+          className="w-40"
+          onClick={() => navigate("/account/start-poll")}
+        >
           Start a poll
         </PrimaryButton>
       </Box>

@@ -18,7 +18,7 @@ export default function CallToAction() {
           </Typography>
         </Box>
         <Box className="flex gap-4">
-          <PrimaryButton className="py-2" onClick={() => navigate("/login")}>
+          <PrimaryButton className="py-2" onClick={() => navigate("/sign-in")}>
             Start now
           </PrimaryButton>
           <SecondaryButton

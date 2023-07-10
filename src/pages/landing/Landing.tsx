@@ -1,6 +1,5 @@
 import { Box, Typography } from "@mui/material";
 // import { collection } from "firebase/firestore";
-import { db } from "../../firebase";
 import FooterSection from "./features/Footer";
 import CallToAction from "./features/CallToAction";
 import ReasonSection from "./features/ReasonSection";
@@ -25,7 +24,7 @@ export default function Landing() {
             By using our website, you agree to our use of cookies outlined in
             the Terms, including advertising and essential cookies.
           </Typography>
-          <Box className="flex h-12 items-end justify-center gap-8">
+          <Box className="flex h-12 items-end justify-center gap-8 pt-4">
             <PrimaryButton className="px-2 py-1" onClick={() => setShow(false)}>
               Accept
             </PrimaryButton>

@@ -392,7 +392,7 @@ const Header = () => {
       <Box className="flex gap-x-2 text-white">
         <Typography variant="h5">Panderer</Typography>
       </Box>
-      <PrimaryButton onClick={() => navigate("/login")}>Login</PrimaryButton>
+      <PrimaryButton onClick={() => navigate("/sign-in")}>Login</PrimaryButton>
     </Box>
   );
 };

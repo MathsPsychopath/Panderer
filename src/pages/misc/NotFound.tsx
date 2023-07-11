@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <Box className="relative ">
       <Box
-        sx={{ backgroundImage: "url('./beach.jpg')" }}
+        sx={{ backgroundImage: "url('/beach.jpg')" }}
         className="absolute inset-0 z-[-1] h-full w-full bg-center blur-sm"
       />
       <Container
@@ -15,7 +15,7 @@ export default function NotFound() {
         maxWidth="md"
       >
         <Box
-          sx={{ backgroundImage: "url('./beach.jpg')" }}
+          sx={{ backgroundImage: "url('/beach.jpg')" }}
           className="flex h-1/2 w-full scale-90 items-center justify-center bg-center md:h-1/3 md:w-1/2"
         >
           <Typography variant="h1">404</Typography>

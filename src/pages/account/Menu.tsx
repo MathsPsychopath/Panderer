@@ -35,8 +35,8 @@ const navLinks: NavigationObject[] = [
   },
   {
     icon: <LineAxis />,
-    listItemText: "Start Graph",
-    to: "/account/start-graph",
+    listItemText: "Start Poll",
+    to: "/account/start-poll",
   },
 ];
 
@@ -54,7 +54,9 @@ export default function Menu() {
             <ButtonBase onClick={() => setOpen(!isMenuOpen)}>
               {isBig ? null : isMenuOpen ? <Close /> : <MenuIcon />}
             </ButtonBase>
-            <Typography variant="button">Panderer</Typography>
+            <Typography variant="button" className="text-lg">
+              Panderer
+            </Typography>
           </Box>
           <UserButton
             appearance={{
@@ -101,9 +103,9 @@ export default function Menu() {
           ))}
         </List>
       </Drawer>
-      <Box>
+      <Box className="flex-grow">
         <Toolbar />
-        <Box className="flex flex-grow p-4">
+        <Box className="p-4 lg:p-8">
           <Outlet />
         </Box>
       </Box>

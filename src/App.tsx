@@ -17,6 +17,7 @@ import {
 import NotFound from "./pages/misc/NotFound";
 import accountRoutes from "./pages/account/accountRoutes";
 import PublicPoll from "./pages/poll/PublicPoll";
+import FirebaseSignIn from "./pages/login/FirebaseSignIn";
 
 const browserRouter = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const browserRouter = createBrowserRouter([
         <SignUp />
       </AuthWrapper>
     ),
+  },
+  {
+    path: "/oauth",
+    element: <FirebaseSignIn />,
   },
   {
     path: "/account/*",

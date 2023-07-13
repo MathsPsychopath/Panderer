@@ -15,7 +15,7 @@ const accountRoutes: RouteObject[] = [
         element: <div>dashboard</div>,
       },
       {
-        path: "start-graph",
+        path: "start-poll",
         element: <Graph />,
       },
     ],

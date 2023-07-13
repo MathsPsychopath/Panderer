@@ -8,37 +8,67 @@
  */
 
 import * as admin from "firebase-admin";
-import { onRequest } from "firebase-functions/v2/https";
+import {
+  onCall,
+  onRequest,
+  CallableRequest,
+  HttpsError,
+} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import get from "./livePoll/methods";
+import { TLivePoll, del, get } from "./livePoll/methods";
 
 admin.initializeApp();
-const db = admin.firestore();
+export const db = admin.firestore();
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
+
+export type TRequestResult<T> =
+  | {
+      isSuccessful: true;
+      body: T;
+      status: 200;
+    }
+  | { isSuccessful: false; status: number; message: string };
 
 export const helloWorld = onRequest((request, response) => {
   logger.info("Hello logs!", { structuredData: true });
   response.send("Hello from Firebase!");
 });
 
-export const livePoll = onRequest((req, res) => {
-  const pollID = req.query.pollID as string;
-  const method = req.method as "GET" | "PUT" | "POST" | "DELETE";
-  if (!pollID) {
-    res.status(400).json({ message: "Poll ID not specified" });
-    return;
+interface ILivePollData {
+  pollID: string;
+  method: "GET" | "PUT" | "POST" | "DELETE";
+}
+export const livePoll = onCall(
+  { cors: ["panderer-fef7a.web.app", "localhost:5173"] },
+  async ({
+    data,
+    auth,
+  }: CallableRequest<ILivePollData>): Promise<
+    TRequestResult<TLivePoll | { message: string }>
+  > => {
+    if (!auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "The function can only be called whilst authenticated"
+      );
+    }
+    const { method, pollID } = data;
+
+    let promise: Promise<TRequestResult<TLivePoll>>;
+    switch (method) {
+      case "GET":
+        promise = get({ pollID });
+        break;
+      case "DELETE":
+        promise = del({ pollID });
+        break;
+      default:
+        throw new HttpsError("invalid-argument", "Method not implemented");
+    }
+    const result_2 = await promise;
+    return result_2;
   }
-  switch (method) {
-    case "GET":
-      const promise = get({ pollID, db });
-      // return res.status(result.status).json(result);
-      return promise.then((result) => {
-        res.status(result.status).json(result);
-      });
-  }
-  res.status(400).json({ message: "Could not find implementation" });
-  return;
-});
+);
 

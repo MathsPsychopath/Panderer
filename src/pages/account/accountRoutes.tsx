@@ -1,6 +1,7 @@
 import { RouteObject } from "react-router-dom";
 import Menu from "./Menu";
 import NotFound from "../misc/NotFound";
+import Graph from "./Graph/Graph";
 
 // this is the main export for all the pages,
 // usable in the React Router createBrowserRouter.children
@@ -15,7 +16,7 @@ const accountRoutes: RouteObject[] = [
       },
       {
         path: "start-graph",
-        element: <div>graph</div>,
+        element: <Graph />,
       },
     ],
   },

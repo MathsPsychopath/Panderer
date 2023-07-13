@@ -2,7 +2,6 @@ import { UserButton } from "@clerk/clerk-react";
 import {
   Close,
   LineAxis,
-  Mail,
   Menu as MenuIcon,
   RocketLaunch,
 } from "@mui/icons-material";

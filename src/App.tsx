@@ -16,6 +16,7 @@ import {
 } from "@clerk/clerk-react";
 import NotFound from "./pages/misc/NotFound";
 import accountRoutes from "./pages/account/accountRoutes";
+import PublicPoll from "./pages/poll/PublicPoll";
 
 const browserRouter = createBrowserRouter([
   {
@@ -59,6 +60,10 @@ const browserRouter = createBrowserRouter([
       </>
     ),
     children: accountRoutes,
+  },
+  {
+    path: "/poll/:pollId",
+    element: <PublicPoll />,
   },
   {
     path: "*",

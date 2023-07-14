@@ -49,7 +49,6 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
         user?.username || auth.currentUser?.displayName || "Unknown";
       const profile_url =
         user?.profileImageUrl || auth.currentUser?.photoURL || null;
-      console.log("got all data");
       // insert poll metadata
       const pollDoc = await addDoc(collection(firestore, "/live-polls"), {
         creator,
@@ -73,7 +72,7 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
       });
       setDialog(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       dispatch({
         type: "SET_ALERT",
         severity: "error",
@@ -85,7 +84,7 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
   return (
     <Dialog open={isDialogOpen} onClose={() => setDialog(false)}>
       <DialogTitle>Start Poll</DialogTitle>
-      <DialogContent className="flex w-80 flex-col gap-8">
+      <DialogContent className="flex flex-col gap-8 sm:w-80">
         <DialogContentText>Choose a title for your poll:</DialogContentText>
         {isLoading ? (
           <CircularProgress />

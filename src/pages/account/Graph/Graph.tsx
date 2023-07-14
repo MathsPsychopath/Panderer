@@ -1,16 +1,13 @@
-import { useAuth } from "@clerk/clerk-react";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useContext,
-  useState,
-} from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { PrimaryButton } from "../../../components/common/Buttons";
-import { httpsCallable } from "firebase/functions";
-import { Box, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import StartPoll from "./StartPoll/StartPoll";
-import { GraphContext } from "./context/GraphContext";
+import { FetchedState, GraphContext } from "./context/GraphContext";
+import { useUser } from "@clerk/clerk-react";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { SnackbarContext } from "../../../components/context/SnackbarContext";
+import { firestore } from "../../../firebase";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Graph() {
   // Check that they haven't already started a polling instance
@@ -25,13 +22,68 @@ export default function Graph() {
   //     .then((e) => console.log(e))
   //     .catch((e) => console.error(e));
   // }, []);
-  // useEffect firestore.livePolls.filter(userID)
   const { state, dispatch } = useContext(GraphContext);
+  const [isLoading, setLoading] = useState(true);
+
+  const { user } = useUser();
+  const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
+  const applyExistingPoll = useCallback(async () => {
+    try {
+      if (!user?.id) throw new Error();
+      // check if there's a poll already on with userID
+      const documentQuery = query(
+        collection(firestore, "/live-polls"),
+        where("userId", "==", user.id)
+      );
+      const { empty, docs } = await getDocs(documentQuery);
+      if (empty) {
+        dispatch({ type: "CLOSE_POLL" });
+        return;
+      }
+
+      // if so, then apply options
+      const { title, started, pollID } = docs[0].data() as FetchedState;
+      dispatch({ type: "OPEN_POLL", title, started: started.toDate(), pollID });
+      snackbarDispatch({
+        type: "SET_ALERT",
+        severity: "success",
+        msg: "Successfully got previous poll",
+      });
+      return true;
+    } catch (error) {
+      console.error(error);
+      snackbarDispatch({
+        type: "SET_ALERT",
+        severity: "error",
+        msg: "Could not check previous instance! Try re-logging.",
+      });
+    }
+  }, []);
+
+  const queryKey = ["get-existing-poll"];
+  const { refetch } = useQuery({
+    queryFn: async () => {
+      await applyExistingPoll();
+      setLoading(false);
+      return null;
+    },
+    queryKey,
+    enabled: false,
+  });
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   return (
     <Box className="flex flex-col items-center gap-4 lg:gap-8">
-      {state.isOpen ? <ManagePoll /> : <StartPoll />}
-
+      {isLoading ? (
+        <CircularProgress />
+      ) : state.isOpen ? (
+        <ManagePoll />
+      ) : (
+        <StartPoll />
+      )}
       {/* <PrimaryButton onClick={handleLivePoll}>livePoll</PrimaryButton> */}
     </Box>
   );

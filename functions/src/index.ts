@@ -10,11 +10,9 @@
 import * as admin from "firebase-admin";
 import {
   onCall,
-  onRequest,
   CallableRequest,
   HttpsError,
 } from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
 import { TLivePoll, del, get } from "./livePoll/methods";
 
 admin.initializeApp();

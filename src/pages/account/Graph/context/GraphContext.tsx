@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import { Dispatch, createContext, useReducer } from "react";
 
 interface IGraphContext {
@@ -48,6 +49,10 @@ const initialState: State = {
   title: "",
   started: new Date(),
   pollID: "",
+};
+
+export type FetchedState = Omit<State, "started"> & {
+  started: Timestamp;
 };
 
 export const GraphProvider = ({ children }: IGraphProvider) => {

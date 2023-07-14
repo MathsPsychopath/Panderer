@@ -1,0 +1,144 @@
+import {
+  Typography,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  TextField,
+  CircularProgress,
+} from "@mui/material";
+import {
+  PrimaryButton,
+  SecondaryButton,
+} from "../../../../components/common/Buttons";
+import placeholderImage from "./placeholder.png";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
+import { Timestamp, addDoc, collection } from "firebase/firestore";
+import { auth, firestore, rtDB } from "../../../../firebase";
+import { useUser } from "@clerk/clerk-react";
+import { SnackbarContext } from "../../../../components/context/SnackbarContext";
+import { GraphContext } from "../context/GraphContext";
+import { ref, set } from "firebase/database";
+import { useNavigate } from "react-router-dom";
+
+interface IPollDialog {
+  isDialogOpen: boolean;
+  setDialog: Dispatch<SetStateAction<boolean>>;
+}
+function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
+  const [title, setTitle] = useState("");
+  const [isLoading, setLoading] = useState(false);
+  const { user } = useUser();
+  const { dispatch } = useContext(SnackbarContext);
+  const { dispatch: pollDispatch } = useContext(GraphContext);
+  const navigate = useNavigate();
+  const startPoll = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (!user?.id) throw new Error();
+      const timestamp = new Date();
+      const started = Timestamp.fromDate(timestamp);
+      const creator =
+        user?.username || auth.currentUser?.displayName || "Unknown";
+      const profile_url =
+        user?.profileImageUrl || auth.currentUser?.photoURL || null;
+      console.log("got all data");
+      // insert poll metadata
+      const pollDoc = await addDoc(collection(firestore, "/live-polls"), {
+        creator,
+        profile_url,
+        started, // this is the firebase date
+        title,
+        userId: user?.id,
+      });
+      // insert a new real time poll
+      set(ref(rtDB, "polls/" + pollDoc.id), {
+        approval: 0,
+        userId: user.id,
+        timestamp: started,
+      });
+      setLoading(false);
+      pollDispatch({
+        type: "OPEN_POLL",
+        title,
+        started: timestamp, // this is the JS date
+        pollID: pollDoc.id,
+      });
+      setDialog(false);
+    } catch (error) {
+      console.log(error);
+      dispatch({
+        type: "SET_ALERT",
+        severity: "error",
+        msg: "Could not start poll! Try re-logging",
+      });
+    }
+  }, [title]);
+
+  return (
+    <Dialog open={isDialogOpen} onClose={() => setDialog(false)}>
+      <DialogTitle>Start Poll</DialogTitle>
+      <DialogContent className="flex w-80 flex-col gap-8">
+        <DialogContentText>Choose a title for your poll:</DialogContentText>
+        {isLoading ? (
+          <CircularProgress />
+        ) : (
+          <TextField
+            variant="outlined"
+            label="Title"
+            inputProps={{ maxLength: 30 }}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        )}
+        <Box className="flex justify-end gap-4">
+          <SecondaryButton
+            className="py-1.5"
+            onClick={() => setDialog(false)}
+            disabled={isLoading}
+          >
+            Cancel
+          </SecondaryButton>
+          <PrimaryButton
+            className="py-1.5"
+            onClick={startPoll}
+            disabled={isLoading}
+          >
+            Start
+          </PrimaryButton>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default function StartPoll() {
+  const [isDialogOpen, setDialog] = useState(false);
+  return (
+    <>
+      <PollDialog isDialogOpen={isDialogOpen} setDialog={setDialog} />
+      <Typography variant="h5" className="text-4xl">
+        Start a poll
+      </Typography>
+      <Box>
+        <Typography>
+          You haven't started a poll yet. Click below to unleash the market!
+        </Typography>
+      </Box>
+      <img
+        className="h-80 w-80"
+        src={placeholderImage}
+        alt="stock chart with red and green man"
+      />
+      <PrimaryButton onClick={() => setDialog(true)}>Start Poll</PrimaryButton>
+    </>
+  );
+}

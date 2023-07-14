@@ -1,9 +1,16 @@
 import { useAuth } from "@clerk/clerk-react";
-import { signInWithCustomToken } from "firebase/auth";
-import React, { useCallback } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
 import { PrimaryButton } from "../../../components/common/Buttons";
-import { auth, functions } from "../../../firebase";
 import { httpsCallable } from "firebase/functions";
+import { Box, Typography } from "@mui/material";
+import StartPoll from "./StartPoll/StartPoll";
+import { GraphContext } from "./context/GraphContext";
 
 export default function Graph() {
   // Check that they haven't already started a polling instance
@@ -11,37 +18,25 @@ export default function Graph() {
   // If not started, then render button to start
   // On start, set Started, then add all their data to rtdb, profile pic url, title
   // generate a link, do "started"
-  // const {getToken} = useAuth()
-  // const handleStart = useCallback(async () => {
-  //   const token = await getToken({template: "firebase"})
-  //   const auth = getAuth()
-  //   // signInWithCustomToken(auth, token)
-  // }, [])
-  const { getToken } = useAuth();
-  const handleSubmit = useCallback(async () => {
-    try {
-      const token = await getToken({ template: "integration_firebase" });
-      console.log(token);
-      if (!token) throw new Error();
-      await signInWithCustomToken(auth, token);
-      console.log("authenticated");
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
 
-  const handleLivePoll = useCallback(async () => {
-    const token = await getToken({ template: "integration_firebase" });
-    const livePoll = httpsCallable(functions, "livePoll");
-    livePoll({ pollID: "nOJko63xSe9bJyijtnPI", method: "GET" })
-      .then((e) => console.log(e))
-      .catch((e) => console.error(e));
-  }, []);
+  // const handleLivePoll = useCallback(async () => {
+  //   const livePoll = httpsCallable(functions, "livePoll");
+  //   livePoll({ pollID: "nOJko63xSe9bJyijtnPI", method: "GET" })
+  //     .then((e) => console.log(e))
+  //     .catch((e) => console.error(e));
+  // }, []);
+  // useEffect firestore.livePolls.filter(userID)
+  const { state, dispatch } = useContext(GraphContext);
 
   return (
-    <>
-      <PrimaryButton onClick={handleSubmit}>Auth</PrimaryButton>
-      <PrimaryButton onClick={handleLivePoll}>livePoll</PrimaryButton>
-    </>
+    <Box className="flex flex-col items-center gap-4 lg:gap-8">
+      {state.isOpen ? <ManagePoll /> : <StartPoll />}
+
+      {/* <PrimaryButton onClick={handleLivePoll}>livePoll</PrimaryButton> */}
+    </Box>
   );
+}
+
+function ManagePoll() {
+  return <>Managing Poll</>;
 }

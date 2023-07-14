@@ -31,17 +31,11 @@ export type TRequestResult<T> =
     }
   | { isSuccessful: false; status: number; message: string };
 
-export const helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs!", { structuredData: true });
-  response.send("Hello from Firebase!");
-});
-
 interface ILivePollData {
   pollID: string;
   method: "GET" | "PUT" | "POST" | "DELETE";
 }
 export const livePoll = onCall(
-  { cors: ["panderer-fef7a.web.app", "localhost:5173"] },
   async ({
     data,
     auth,

@@ -60,6 +60,11 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
         approval: 0,
         userId: user.id,
         timestamp: started,
+        statistics: {
+          approvers: 0,
+          abstainers: 0,
+          disapprovers: 0,
+        },
       });
       setLoading(false);
       pollDispatch({

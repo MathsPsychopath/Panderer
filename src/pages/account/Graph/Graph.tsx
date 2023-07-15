@@ -14,14 +14,7 @@ export default function Graph() {
   // if started, then render the poll, graph, browser source
   // If not started, then render button to start
   // On start, set Started, then add all their data to rtdb, profile pic url, title
-  // generate a link, do "started"
 
-  // const handleLivePoll = useCallback(async () => {
-  //   const livePoll = httpsCallable(functions, "livePoll");
-  //   livePoll({ pollID: "nOJko63xSe9bJyijtnPI", method: "GET" })
-  //     .then((e) => console.log(e))
-  //     .catch((e) => console.error(e));
-  // }, []);
   const { state, dispatch } = useContext(GraphContext);
   const [isLoading, setLoading] = useState(true);
 

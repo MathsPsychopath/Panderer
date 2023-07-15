@@ -6,6 +6,14 @@ interface IGraphContext {
   dispatch: Dispatch<Action>;
 }
 
+export type TLiveDataResult = {
+  userId: string;
+  timestamp: Timestamp;
+  approvers: number;
+  abstained: number;
+  disapprovers: number;
+};
+
 type State = {
   isOpen: boolean;
   // volatile poll data
@@ -13,11 +21,13 @@ type State = {
   started: Date;
   // this needs to be fetch and used for public_url
   pollID: string;
+  latestData?: TLiveDataResult;
 };
 
 type Action =
   | { type: "CLOSE_POLL" }
-  | { type: "OPEN_POLL"; title: string; started: Date; pollID: string };
+  | { type: "OPEN_POLL"; title: string; started: Date; pollID: string }
+  | { type: "PUSH_DATA"; latestData: TLiveDataResult };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -29,6 +39,11 @@ const reducer = (state: State, action: Action): State => {
         title: action.title,
         started: action.started,
         pollID: action.pollID,
+      };
+    case "PUSH_DATA":
+      return {
+        ...state,
+        latestData: action.latestData,
       };
     default:
       return state;

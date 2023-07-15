@@ -36,7 +36,7 @@ const navLinks: NavigationObject[] = [
   {
     icon: <LineAxis />,
     listItemText: "Start Poll",
-    to: "/account/start-poll",
+    to: "/account/poll",
   },
 ];
 

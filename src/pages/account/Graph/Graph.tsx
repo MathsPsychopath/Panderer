@@ -3,11 +3,11 @@ import { Box, CircularProgress } from "@mui/material";
 import StartPoll from "./StartPoll/StartPoll";
 import { FetchedState, GraphContext } from "./context/GraphContext";
 import { useUser } from "@clerk/clerk-react";
-import { collection, getDocs, query, where } from "firebase/firestore";
 import { SnackbarContext } from "../../../components/context/SnackbarContext";
 import { firestore } from "../../../firebase";
 import { useQuery } from "@tanstack/react-query";
 import ManagePoll from "./ManagePoll/ManagePoll";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Graph() {
   // Check that they haven't already started a polling instance
@@ -17,30 +17,25 @@ export default function Graph() {
 
   const { state, dispatch } = useContext(GraphContext);
   const [isLoading, setLoading] = useState(true);
-
   const { user } = useUser();
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
   const applyExistingPoll = useCallback(async () => {
     try {
       if (!user?.id) throw new Error();
       // check if there's a poll already on with userID
-      const documentQuery = query(
-        collection(firestore, "/live-polls"),
-        where("userId", "==", user.id)
-      );
-      const { empty, docs } = await getDocs(documentQuery);
-      if (empty) {
+      const docRef = doc(firestore, "live-polls", user.id);
+      const snapshot = await getDoc(docRef);
+      if (!snapshot || !snapshot.exists()) {
         dispatch({ type: "CLOSE_POLL" });
         return;
       }
-
       // if so, then apply options
-      const { title, started } = docs[0].data() as FetchedState;
+      const { title, started, pollID } = snapshot.data() as FetchedState;
       dispatch({
         type: "OPEN_POLL",
         title,
         started: started.toDate(),
-        pollID: docs[0].id,
+        pollID,
       });
       snackbarDispatch({
         type: "SET_ALERT",
@@ -84,7 +79,6 @@ export default function Graph() {
       ) : (
         <StartPoll />
       )}
-      {/* <PrimaryButton onClick={handleLivePoll}>livePoll</PrimaryButton> */}
     </>
   );
 }

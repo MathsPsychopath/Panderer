@@ -8,9 +8,18 @@ import {
   TableBody,
 } from "@mui/material";
 
-export default function Statistics() {
-  // connect to the statistics part of the real time database
-
+interface IStatistics {
+  approvers?: number;
+  disapprovers?: number;
+  abstained?: number;
+}
+export default function Statistics({
+  approvers = 0,
+  disapprovers = 0,
+  abstained = 0,
+}: IStatistics) {
+  const total = approvers + disapprovers + abstained;
+  const divisor = total || 1;
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -24,22 +33,28 @@ export default function Statistics() {
         <TableBody>
           <TableRow>
             <TableCell>Approvers</TableCell>
-            <TableCell>567</TableCell>
-            <TableCell>{Math.round((56700 / 723) * 100) / 100}%</TableCell>
+            <TableCell>{approvers}</TableCell>
+            <TableCell>
+              {Math.round(((approvers * 10) / divisor) * 100) / 10}%
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Disapprovers</TableCell>
-            <TableCell>67</TableCell>
-            <TableCell>{Math.round((6700 / 723) * 100) / 100}%</TableCell>
+            <TableCell>{disapprovers}</TableCell>
+            <TableCell>
+              {Math.round(((disapprovers * 10) / divisor) * 100) / 10}%
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Abstained</TableCell>
-            <TableCell>89</TableCell>
-            <TableCell>{Math.round((8900 / 723) * 100) / 100}%</TableCell>
+            <TableCell>{abstained}</TableCell>
+            <TableCell>
+              {Math.round(((abstained * 10) / divisor) * 100) / 10}%
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Participants</TableCell>
-            <TableCell>723</TableCell>
+            <TableCell>{total}</TableCell>
             <TableCell>100%</TableCell>
           </TableRow>
         </TableBody>

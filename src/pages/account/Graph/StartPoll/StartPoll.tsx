@@ -20,7 +20,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { Timestamp, addDoc, collection } from "firebase/firestore";
+import { Timestamp, doc, setDoc } from "firebase/firestore";
 import { auth, firestore, rtDB } from "../../../../firebase";
 import { useUser } from "@clerk/clerk-react";
 import { SnackbarContext } from "../../../../components/context/SnackbarContext";
@@ -39,6 +39,7 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
   const { dispatch: pollDispatch } = useContext(GraphContext);
   const startPoll = useCallback(async () => {
     setLoading(true);
+    const pollID = window.crypto.randomUUID();
     try {
       if (!user?.id) throw new Error();
       const timestamp = new Date();
@@ -47,31 +48,31 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
         user?.username || auth.currentUser?.displayName || "Unknown";
       const profile_url =
         user?.profileImageUrl || auth.currentUser?.photoURL || null;
+
       // insert poll metadata
-      const pollDoc = await addDoc(collection(firestore, "/live-polls"), {
+      const docRef = doc(firestore, "live-polls", user.id);
+      await setDoc(docRef, {
         creator,
         profile_url,
         started, // this is the firebase date
         title,
-        userId: user?.id,
+        pollID,
       });
+
       // insert a new real time poll
-      set(ref(rtDB, "polls/" + pollDoc.id), {
-        approval: 0,
-        userId: user.id,
+      await set(ref(rtDB, "polls/" + pollID), {
+        userID: user.id,
         timestamp: started,
-        statistics: {
-          approvers: 0,
-          abstainers: 0,
-          disapprovers: 0,
-        },
+        approvers: 0,
+        abstained: 0,
+        disapprovers: 0,
       });
       setLoading(false);
       pollDispatch({
         type: "OPEN_POLL",
         title,
         started: timestamp, // this is the JS date
-        pollID: pollDoc.id,
+        pollID,
       });
       setDialog(false);
     } catch (error) {

@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { PrimaryButton } from "../../../components/common/Buttons";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import StartPoll from "./StartPoll/StartPoll";
 import { FetchedState, GraphContext } from "./context/GraphContext";
 import { useUser } from "@clerk/clerk-react";
@@ -8,6 +7,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { SnackbarContext } from "../../../components/context/SnackbarContext";
 import { firestore } from "../../../firebase";
 import { useQuery } from "@tanstack/react-query";
+import ManagePoll from "./ManagePoll/ManagePoll";
 
 export default function Graph() {
   // Check that they haven't already started a polling instance
@@ -42,8 +42,13 @@ export default function Graph() {
       }
 
       // if so, then apply options
-      const { title, started, pollID } = docs[0].data() as FetchedState;
-      dispatch({ type: "OPEN_POLL", title, started: started.toDate(), pollID });
+      const { title, started } = docs[0].data() as FetchedState;
+      dispatch({
+        type: "OPEN_POLL",
+        title,
+        started: started.toDate(),
+        pollID: docs[0].id,
+      });
       snackbarDispatch({
         type: "SET_ALERT",
         severity: "success",
@@ -76,19 +81,17 @@ export default function Graph() {
   }, []);
 
   return (
-    <Box className="flex flex-col items-center gap-4 lg:gap-8">
+    <>
       {isLoading ? (
-        <CircularProgress />
+        <Box className="flex h-screen w-full items-center justify-center">
+          <CircularProgress />
+        </Box>
       ) : state.isOpen ? (
         <ManagePoll />
       ) : (
         <StartPoll />
       )}
       {/* <PrimaryButton onClick={handleLivePoll}>livePoll</PrimaryButton> */}
-    </Box>
+    </>
   );
-}
-
-function ManagePoll() {
-  return <>Managing Poll</>;
 }

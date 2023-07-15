@@ -26,7 +26,6 @@ import { useUser } from "@clerk/clerk-react";
 import { SnackbarContext } from "../../../../components/context/SnackbarContext";
 import { GraphContext } from "../context/GraphContext";
 import { ref, set } from "firebase/database";
-import { useNavigate } from "react-router-dom";
 
 interface IPollDialog {
   isDialogOpen: boolean;
@@ -38,7 +37,6 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
   const { user } = useUser();
   const { dispatch } = useContext(SnackbarContext);
   const { dispatch: pollDispatch } = useContext(GraphContext);
-  const navigate = useNavigate();
   const startPoll = useCallback(async () => {
     setLoading(true);
     try {
@@ -122,7 +120,7 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
 export default function StartPoll() {
   const [isDialogOpen, setDialog] = useState(false);
   return (
-    <>
+    <Box className="flex flex-col items-center gap-4 overflow-hidden py-28 lg:gap-8">
       <PollDialog isDialogOpen={isDialogOpen} setDialog={setDialog} />
       <Typography variant="h5" className="text-4xl">
         Start a poll
@@ -138,6 +136,6 @@ export default function StartPoll() {
         alt="stock chart with red and green man"
       />
       <PrimaryButton onClick={() => setDialog(true)}>Start Poll</PrimaryButton>
-    </>
+    </Box>
   );
 }

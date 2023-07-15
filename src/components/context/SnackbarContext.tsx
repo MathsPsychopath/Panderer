@@ -13,7 +13,7 @@ type State = {
   isOpen: boolean;
 };
 
-type Action =
+export type Action =
   | { type: "SET_ALERT"; msg: string; severity: Severity }
   | { type: "SET_CLOSE" };
 

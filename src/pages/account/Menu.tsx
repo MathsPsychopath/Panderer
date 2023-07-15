@@ -105,7 +105,7 @@ export default function Menu() {
       </Drawer>
       <Box className="flex-grow">
         <Toolbar />
-        <Box className="p-4 lg:p-8">
+        <Box className="bg-secondary-button">
           <Outlet />
         </Box>
       </Box>

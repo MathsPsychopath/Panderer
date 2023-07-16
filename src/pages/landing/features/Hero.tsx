@@ -206,7 +206,6 @@ function MobileHero() {
           <BatteryFull className="rotate-90 text-[1.25rem]" />
         </Box>
       </Box>
-      <ArrowBackIosNew className="absolute left-5 top-8" />
       <Typography className="flex justify-center text-black" variant="h6">
         xQc
       </Typography>

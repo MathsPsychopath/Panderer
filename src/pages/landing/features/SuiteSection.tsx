@@ -1,7 +1,9 @@
-import { Box, Typography } from "@mui/material";
-import Spline from "@splinetool/react-spline";
+import { Box, CircularProgress, Typography } from "@mui/material";
+
 import { SecondaryButton } from "../../../components/common/Buttons";
 import { useNavigate } from "react-router-dom";
+import { Suspense, lazy } from "react";
+const LazySpline = lazy(() => import("./SplineClock"));
 
 const Svg2 = () => {
   return (
@@ -50,8 +52,10 @@ export default function SuiteSection() {
             See guide
           </SecondaryButton>
         </Box>
-        <Box className="h-80 w-80 rounded-xl bg-black p-2">
-          <Spline scene="https://prod.spline.design/9at9Js33NcdK-JAT/scene.splinecode" />
+        <Box className="flex h-80 w-80 items-center justify-center rounded-xl bg-black p-2">
+          <Suspense fallback={<CircularProgress color="error" />}>
+            <LazySpline />
+          </Suspense>
         </Box>
       </Box>
     </Box>

@@ -71,8 +71,8 @@ export default function ManagePoll() {
   const { approvers, disapprovers, abstained } = state.latestData ?? {};
   return (
     <Box className="relative flex flex-col gap-2 pb-36">
-      <Paper className="flex flex-col items-center gap-8 p-8">
-        <Box className="flex w-full items-center justify-between">
+      <Paper className="mt-2 flex flex-col items-center gap-8 p-4">
+        <Box className="flex w-full items-center justify-evenly p-4">
           <Typography variant="h5" className="place-self-start text-2xl">
             Manage "{state.title}"
           </Typography>
@@ -80,7 +80,7 @@ export default function ManagePoll() {
             Started: {ago(state.started)}
           </Typography>
         </Box>
-        <Box className="flex h-80 w-full flex-grow border border-solid border-black">
+        <Box className="h-80 w-full">
           <RealTimeGraph />
         </Box>
       </Paper>

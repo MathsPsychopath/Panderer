@@ -2,10 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
-import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
+import { getFunctions } from "firebase/functions";
+
+if (!import.meta.env.VITE_FIREBASE_API_KEY)
+  throw new Error("Undefined firebase api key");
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAvmpL9tSc83TrH2DRfoxFbUbjalw8YvdM",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "panderer-fef7a.web.app",
   databaseURL: "https://panderer-fef7a-default-rtdb.firebaseio.com",
   projectId: "panderer-fef7a",

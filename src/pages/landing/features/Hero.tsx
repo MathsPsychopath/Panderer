@@ -1,6 +1,5 @@
 import { Box, Typography, useMediaQuery } from "@mui/material";
 import {
-  ArrowBackIosNew,
   BatteryFull,
   ExpandLess,
   ExpandMore,

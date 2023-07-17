@@ -1,6 +1,6 @@
 import { Box, Paper, Typography } from "@mui/material";
-import { useCallback, useContext, useEffect } from "react";
-import { GraphContext, TLiveDataResult } from "../context/GraphContext";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { GraphContext } from "../context/GraphContext";
 import {
   PrimaryButton,
   SecondaryButton,
@@ -12,23 +12,40 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ago, copyClipboard } from "./util";
 import { firestore, rtDB } from "../../../../firebase";
-import RealTimeGraph from "./RealTimeGraph";
+import RealTimeGraph from "../../../../components/common/RTGraph/RealTimeGraph";
 import Statistics from "./Statistics";
 import { onValue, ref, remove } from "firebase/database";
-import { deleteDoc, doc } from "firebase/firestore";
+import { Timestamp, deleteDoc, doc } from "firebase/firestore";
 import { useUser } from "@clerk/clerk-react";
+import { UTCTimestamp } from "lightweight-charts";
+
+type TLiveDataResult = {
+  userId: string;
+  timestamp: Timestamp;
+  approvers: number;
+  abstained: number;
+  disapprovers: number;
+};
+
+type TUsableData = Omit<TLiveDataResult, "timestamp"> & {
+  time: UTCTimestamp;
+};
 
 export default function ManagePoll() {
   // need to make responsive and desktop composition
-  // NON MVP - add multiple time frames, different graph types,
   // option to set more information and change
   const { state, dispatch } = useContext(GraphContext);
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
+  const [latestData, setLatestData] = useState<TUsableData | null>(null);
+  const [net, setNet] = useState(0);
   const navigate = useNavigate();
   const { user } = useUser();
 
   // need to cast type for parameter usage
-  const dispatchAsParam = (action: Action) => snackbarDispatch(action);
+  const dispatchAsParam = useCallback(
+    (action: Action) => snackbarDispatch(action),
+    []
+  );
 
   // close all polls associated with user
   const closePolls = useCallback(async () => {
@@ -64,11 +81,16 @@ export default function ManagePoll() {
     const pollRef = ref(rtDB, `/polls/${state.pollID}`);
     onValue(pollRef, (snapshot) => {
       const pollData = snapshot.val() as TLiveDataResult;
-      dispatch({ type: "PUSH_DATA", latestData: pollData });
+      const usableData: TUsableData = {
+        ...pollData,
+        time: pollData.timestamp.seconds as UTCTimestamp,
+      };
+      setLatestData(usableData);
+      const net = pollData.approvers - pollData.disapprovers;
+      setNet(net);
     });
   }, [state.pollID]);
 
-  const { approvers, disapprovers, abstained } = state.latestData ?? {};
   return (
     <Box className="relative flex flex-col gap-2 pb-36">
       <Paper className="mt-2 flex flex-col items-center gap-8 p-4">
@@ -81,14 +103,14 @@ export default function ManagePoll() {
           </Typography>
         </Box>
         <Box className="h-80 w-full">
-          <RealTimeGraph />
+          <RealTimeGraph net={net} timestamp={latestData?.time} />
         </Box>
       </Paper>
       <Box className="flex w-full gap-8">
         <Statistics
-          approvers={approvers}
-          disapprovers={disapprovers}
-          abstained={abstained}
+          approvers={latestData?.approvers}
+          disapprovers={latestData?.disapprovers}
+          abstained={latestData?.abstained}
         />
         <Box className="fixed bottom-0 left-0 right-0 m-4 flex flex-col gap-2 sm:static">
           <PrimaryButton

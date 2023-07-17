@@ -49,7 +49,6 @@ type Action =
 
 const commitCandle = (state: State): State => {
   const { close, time } = state.currentCandle;
-  console.log(new Date(state.currentCandle.time * 1000 + 60));
   return {
     ...state,
     oneMinuteHistory: [...state.oneMinuteHistory, state.currentCandle],

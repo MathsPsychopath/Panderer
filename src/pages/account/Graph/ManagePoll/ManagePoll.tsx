@@ -19,7 +19,7 @@ import { Timestamp, deleteDoc, doc } from "firebase/firestore";
 import { useUser } from "@clerk/clerk-react";
 import { UTCTimestamp } from "lightweight-charts";
 
-type TLiveDataResult = {
+export type TLiveDataResult = {
   userId: string;
   timestamp: Timestamp;
   approvers: number;
@@ -27,13 +27,14 @@ type TLiveDataResult = {
   disapprovers: number;
 };
 
-type TUsableData = Omit<TLiveDataResult, "timestamp"> & {
+export type TUsableData = Omit<TLiveDataResult, "timestamp"> & {
   time: UTCTimestamp;
 };
 
 export default function ManagePoll() {
   // need to make responsive and desktop composition
-  // option to set more information and change
+  // NON-MVP option to set more information and change
+  // need to delete all anonymously signed users
   const { state, dispatch } = useContext(GraphContext);
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
   const [latestData, setLatestData] = useState<TUsableData | null>(null);
@@ -80,9 +81,10 @@ export default function ManagePoll() {
   useEffect(() => {
     const pollRef = ref(rtDB, `/polls/${state.pollID}`);
     onValue(pollRef, (snapshot) => {
-      const pollData = snapshot.val() as TLiveDataResult;
+      const pollData = snapshot.val();
+      if (!pollData) return;
       const usableData: TUsableData = {
-        ...pollData,
+        ...(pollData as TLiveDataResult),
         time: pollData.timestamp.seconds as UTCTimestamp,
       };
       setLatestData(usableData);

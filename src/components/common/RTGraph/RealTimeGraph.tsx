@@ -50,7 +50,6 @@ export default function RealTimeGraph({ timestamp, net }: TChartData) {
   // every tick change, forward changes to reducer
   useEffect(() => {
     if (!chart.current || !candlestickRef.current) return;
-    console.log(net);
     if (!timestamp || net === undefined) {
       dispatch({ type: "UNDEFINED_DATA" });
       return;

@@ -1,5 +1,5 @@
 import React from "react";
-import { TPollMetadata } from "./PublicPoll";
+import { TStrictMetadata } from "./PublicPoll";
 import { ExpandMore, ExpandLess, PanTool } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
 import {
@@ -7,7 +7,7 @@ import {
   SecondaryButton,
 } from "../../components/common/Buttons";
 
-type TPollLayoutInfo = Omit<TPollMetadata, "pollID"> & {
+type TPollLayoutInfo = TStrictMetadata & {
   children: React.ReactNode;
 };
 

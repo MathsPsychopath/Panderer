@@ -24,7 +24,7 @@ export type TCandle = {
   high: number;
   low: number;
   close: number;
-};
+} | null;
 
 export type TCandlestickRef =
   MutableRefObject<ISeriesApi<"Candlestick"> | null>;
@@ -42,18 +42,20 @@ type Action =
   | {
       type: "UPDATE_CURRENT";
       net: number;
+      time: UTCTimestamp;
     }
   | {
       type: "UNDEFINED_DATA";
     };
 
-const commitCandle = (state: State): State => {
-  const { close, time } = state.currentCandle;
+// this will move onto the next minute candle, adding current candle to history
+const commitCandle = (state: State, time: UTCTimestamp): State => {
+  const { close } = state.currentCandle!;
   return {
     ...state,
     oneMinuteHistory: [...state.oneMinuteHistory, state.currentCandle],
     currentCandle: {
-      time: (time.valueOf() + 60) as UTCTimestamp,
+      time: (Math.floor(time.valueOf() / 60) * 60) as UTCTimestamp,
       open: close,
       high: close,
       low: close,
@@ -62,7 +64,22 @@ const commitCandle = (state: State): State => {
   };
 };
 
-const updateCandle = (state: State, net: number): State => {
+// this updates the current candle with tick
+const updateCandle = (state: State, net: number, time: UTCTimestamp): State => {
+  if (!state.currentCandle) {
+    // create the first candle
+    const firstCandle = {
+      time: (Math.floor(time.valueOf() / 60) * 60) as UTCTimestamp,
+      close: net,
+      high: net < 0 ? 0 : net,
+      low: net < 0 ? net : 0,
+      open: 0,
+    };
+    return {
+      ...state,
+      currentCandle: firstCandle,
+    };
+  }
   const { high: prevHigh, low: prevLow } = state.currentCandle;
   const newClose = net;
   let newHigh = Math.max(net, prevHigh);
@@ -79,22 +96,8 @@ const updateCandle = (state: State, net: number): State => {
 };
 
 const initialState: State = {
-  oneMinuteHistory: [
-    {
-      time: getLocalizedTime(Date.now() / 1000) as UTCTimestamp,
-      open: 0,
-      high: 0,
-      low: 0,
-      close: 0,
-    },
-  ],
-  currentCandle: {
-    time: getLocalizedTime(Date.now() / 1000) as UTCTimestamp,
-    open: 0,
-    high: 0,
-    low: 0,
-    close: 0,
-  },
+  oneMinuteHistory: [],
+  currentCandle: null,
 };
 
 export default function useCandlesticks(
@@ -105,14 +108,18 @@ export default function useCandlesticks(
       // adds to history and starts next candle
       // should compare minutes before usage
       case "COMMIT_CANDLE":
-        const committedState = commitCandle(state);
-        candlestickRef.current?.update(committedState.currentCandle);
+        if (!state.currentCandle) return initialState;
+        const committedState = commitCandle(
+          state,
+          getLocalizedTime(Math.floor(Date.now() / 1000)) as UTCTimestamp
+        );
+        candlestickRef.current?.update(committedState.currentCandle!);
         return committedState;
       // update the current candle given the movement
       // optimal if batched movement
       case "UPDATE_CURRENT":
-        const nextState = updateCandle(state, action.net);
-        candlestickRef.current?.update(nextState.currentCandle);
+        const nextState = updateCandle(state, action.net, action.time);
+        candlestickRef.current?.update(nextState.currentCandle!);
         return nextState;
       case "UNDEFINED_DATA":
         return state;

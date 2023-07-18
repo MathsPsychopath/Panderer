@@ -19,6 +19,9 @@ export default function PollWrapper({
   started,
   children,
 }: TPollLayoutInfo) {
+  // add increment/decrement functionality
+  // fix layout
+  // on every button click, assert that the poll is still active, else close poll
   return (
     <Box className="flex flex-col items-center">
       <Box className="flex w-72 flex-col items-center">

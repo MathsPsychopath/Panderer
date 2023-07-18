@@ -34,7 +34,6 @@ export type TUsableData = Omit<TLiveDataResult, "timestamp"> & {
 export default function ManagePoll() {
   // need to make responsive and desktop composition
   // NON-MVP option to set more information and change
-  // need to delete all anonymously signed users
   const { state, dispatch } = useContext(GraphContext);
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
   const [latestData, setLatestData] = useState<TUsableData | null>(null);

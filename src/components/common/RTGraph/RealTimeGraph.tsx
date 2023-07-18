@@ -15,8 +15,10 @@ export type TChartData = {
 
 export default function RealTimeGraph({ timestamp, net }: TChartData) {
   // NON MVP - add multiple time frames, different graph types,
+  // use settimeout, set the time = Math.round(time / 60) * 60
   const chart = useRef<null | IChartApi>(null);
   const candlestickRef = useRef<null | ISeriesApi<"Candlestick">>(null);
+  const timer = useRef<NodeJS.Timeout>();
   const [_, dispatch] = useCandlesticks(candlestickRef);
 
   // Mount the chart with options
@@ -37,13 +39,19 @@ export default function RealTimeGraph({ timestamp, net }: TChartData) {
     });
     candlestickRef.current = chart.current.addCandlestickSeries();
     // This is how candles are consolidated.
-    const historyCommit = setInterval(() => {
-      dispatch({ type: "COMMIT_CANDLE" });
-    }, 60000);
+    const historyCommit = function () {
+      const now = new Date();
+      const delay = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+      timer.current = setTimeout(() => {
+        dispatch({ type: "COMMIT_CANDLE" });
+        historyCommit();
+      }, delay);
+    };
+    historyCommit();
 
     return () => {
       chart.current?.remove();
-      clearInterval(historyCommit);
+      clearTimeout(timer.current);
     };
   }, []);
 
@@ -54,7 +62,7 @@ export default function RealTimeGraph({ timestamp, net }: TChartData) {
       dispatch({ type: "UNDEFINED_DATA" });
       return;
     }
-    dispatch({ type: "UPDATE_CURRENT", net });
+    dispatch({ type: "UPDATE_CURRENT", net, time: timestamp });
   }, [net]);
 
   return <Box id="candlesticks" className="h-full w-full" />;

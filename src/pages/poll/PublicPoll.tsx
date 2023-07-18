@@ -1,9 +1,8 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NotFound from "../misc/NotFound";
-import { auth, firestore, rtDB } from "../../firebase";
-import { signInAnonymously } from "firebase/auth";
+import { firestore, rtDB } from "../../firebase";
 import { SnackbarContext } from "../../components/context/SnackbarContext";
 import {
   Timestamp,
@@ -14,6 +13,12 @@ import {
 } from "firebase/firestore";
 import PollWrapper from "./PollLayoutWrapper";
 import RealTimeGraph from "../../components/common/RTGraph/RealTimeGraph";
+import { onValue, ref } from "firebase/database";
+import {
+  TLiveDataResult,
+  TUsableData,
+} from "../account/Graph/ManagePoll/ManagePoll";
+import { UTCTimestamp } from "lightweight-charts";
 
 export type TPollMetadata = {
   creator: string;
@@ -23,23 +28,26 @@ export type TPollMetadata = {
   pollID: string;
 };
 
+type PollWithUser = TPollMetadata & { userID: string };
+
+export type TStrictMetadata = Omit<TPollMetadata, "pollID">;
+
 type Poll =
   | {
       isValid: false;
     }
-  | ({ isValid: true } & Omit<TPollMetadata, "pollID">);
+  | ({ isValid: true } & Omit<PollWithUser, "pollID">);
 
 export default function PublicPoll() {
   const { pollId } = useParams();
   const [isLoading, setLoading] = useState(true);
   const [poll, setPoll] = useState<Poll>({ isValid: false });
   const { dispatch } = useContext(SnackbarContext);
-  const checkValidPoll = useCallback(async () => {
+  const [latestData, setLatestData] = useState<TUsableData | null>(null);
+  const [net, setNet] = useState(0);
+
+  const tryApplyMetadata = useCallback(async () => {
     try {
-      // do anonymous sign in for user (temporary) if not already signed in
-      if (!auth.currentUser) {
-        await signInAnonymously(auth);
-      }
       // check in database for pollID
       const docRef = query(
         collection(firestore, "live-polls"),
@@ -48,23 +56,37 @@ export default function PublicPoll() {
       const docSnaps = await getDocs(docRef);
       if (docSnaps.empty) {
         setPoll({ isValid: false });
-        return;
+        throw new Error("Could not find poll");
       }
       // if exists, then get user ID and get meta data
-      const { creator, profile_url, started, title } =
-        docSnaps.docs[0].data() as TPollMetadata;
-      setPoll({ isValid: true, creator, profile_url, started, title });
+      const metadata = docSnaps.docs[0].data() as TPollMetadata;
+      const userID = docSnaps.docs[0].id;
+      setPoll({ isValid: true, userID, ...metadata });
+      // connect with poll/userid and handle value stream
+      const pollRef = ref(rtDB, `polls/${pollId}`);
+      onValue(pollRef, async (snapshot) => {
+        const pollData = snapshot.val();
+        if (!pollData) return;
+        const usableData: TUsableData = {
+          ...(pollData as TLiveDataResult),
+          time: pollData.timestamp.seconds as UTCTimestamp,
+        };
+        setLatestData(usableData);
+        const net = pollData.approvers - pollData.disapprovers;
+        setNet(net);
+      });
     } catch (error) {
       dispatch({
         type: "SET_ALERT",
         severity: "error",
-        msg: "Could not anonymous sign-in. Please try again later.",
+        msg: "Could not get poll data. Is this link valid?",
       });
     }
     setLoading(false);
   }, []);
+
   useEffect(() => {
-    checkValidPoll();
+    tryApplyMetadata();
   }, []);
 
   return isLoading ? (
@@ -78,7 +100,9 @@ export default function PublicPoll() {
       started={poll.started}
       title={poll.title}
     >
-      <RealTimeGraph />
+      <Box className="h-80 w-full">
+        <RealTimeGraph net={net} timestamp={latestData?.time} />
+      </Box>
     </PollWrapper>
   ) : (
     <NotFound />

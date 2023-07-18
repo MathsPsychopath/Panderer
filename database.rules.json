@@ -2,9 +2,10 @@
   "rules": {
     "polls": {
       "$pollId": {
-        ".write": "auth !== null",
+        ".write": true,
         ".read": true
       }
     }
   }
 }
+

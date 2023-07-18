@@ -59,10 +59,6 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
         pollID,
       });
 
-      // insert a dictionary of voters (subscriber)
-      const subRef = doc(firestore, "poll-subs", user.id);
-      await setDoc(subRef, {});
-
       // insert a new real time poll
       await set(ref(rtDB, "polls/" + pollID), {
         userID: user.id,

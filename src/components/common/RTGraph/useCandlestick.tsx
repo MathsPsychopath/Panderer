@@ -67,7 +67,7 @@ const commitCandle = (state: State, time: UTCTimestamp): State => {
 // this updates the current candle with tick
 const updateCandle = (state: State, net: number, time: UTCTimestamp): State => {
   if (!state.currentCandle) {
-    // create the first candle
+    // create the first candle and commit the last know candle
     const firstCandle = {
       time: (Math.floor(time.valueOf() / 60) * 60) as UTCTimestamp,
       close: net,
@@ -76,8 +76,14 @@ const updateCandle = (state: State, net: number, time: UTCTimestamp): State => {
       open: 0,
     };
     return {
-      ...state,
-      currentCandle: firstCandle,
+      oneMinuteHistory: [firstCandle],
+      currentCandle: {
+        time: getLocalizedTime(Math.floor(Date.now() / 1000)) as UTCTimestamp,
+        open: net,
+        close: net,
+        high: net,
+        low: net,
+      },
     };
   }
   const { high: prevHigh, low: prevLow } = state.currentCandle;
@@ -106,7 +112,6 @@ export default function useCandlesticks(
   const reducer = useCallback((state: State, action: Action): State => {
     switch (action.type) {
       // adds to history and starts next candle
-      // should compare minutes before usage
       case "COMMIT_CANDLE":
         if (!state.currentCandle) return initialState;
         const committedState = commitCandle(
@@ -119,7 +124,25 @@ export default function useCandlesticks(
       // optimal if batched movement
       case "UPDATE_CURRENT":
         const nextState = updateCandle(state, action.net, action.time);
-        candlestickRef.current?.update(nextState.currentCandle!);
+        if (state.currentCandle) {
+          candlestickRef.current?.update(nextState.currentCandle!);
+          return nextState;
+        }
+        // this is the first candle, so set the current state incl. history
+        const lastRecordedCandle = nextState.oneMinuteHistory[0]!;
+        candlestickRef.current?.setData([
+          lastRecordedCandle,
+          nextState.currentCandle!,
+        ]);
+        candlestickRef.current?.setMarkers([
+          {
+            time: lastRecordedCandle.time,
+            position: "aboveBar",
+            color: "#2f2074",
+            shape: "arrowDown",
+            text: "Previous value",
+          },
+        ]);
         return nextState;
       case "UNDEFINED_DATA":
         return state;

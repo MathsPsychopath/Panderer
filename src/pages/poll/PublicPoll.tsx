@@ -30,8 +30,6 @@ export type TPollMetadata = {
 
 type PollWithUser = TPollMetadata & { userID: string };
 
-export type TStrictMetadata = Omit<TPollMetadata, "pollID">;
-
 type Poll =
   | {
       isValid: false;
@@ -99,6 +97,8 @@ export default function PublicPoll() {
       profile_url={poll.profile_url}
       started={poll.started}
       title={poll.title}
+      pollID={pollId!}
+      invalidatePoll={() => setPoll({ isValid: false })}
     >
       <Box className="h-80 w-full">
         <RealTimeGraph net={net} timestamp={latestData?.time} />

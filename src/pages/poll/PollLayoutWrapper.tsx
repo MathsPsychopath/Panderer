@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { TPollMetadata } from "./PublicPoll";
 import { ExpandMore, ExpandLess, PanTool } from "@mui/icons-material";
 import { Box, LinearProgress, Typography } from "@mui/material";
@@ -6,7 +12,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../../components/common/Buttons";
-import { ref, runTransaction } from "firebase/database";
+import { onDisconnect, ref, runTransaction } from "firebase/database";
 import { rtDB } from "../../firebase";
 import { TLiveDataResult } from "../account/Graph/ManagePoll/ManagePoll";
 import { Timestamp } from "firebase/firestore";
@@ -31,7 +37,6 @@ export default function PollWrapper({
   invalidatePoll,
 }: TPollLayoutInfo & InvalidatePoll) {
   // fix layout
-  // create rtdb connections
   const pollRef = useRef(ref(rtDB, `polls/${pollID}`));
   const [prevState, setPrevState] = useState<State | null>(null);
   const { dispatch } = useContext(SnackbarContext);
@@ -55,6 +60,7 @@ export default function PollWrapper({
         );
         poll[nextState] = (poll[nextState] || 0) + 1;
         setPrevState(nextState);
+        localStorage.setItem(`vote-${pollID}`, nextState);
         if (!prevState) return poll;
         poll[prevState] = (poll[prevState] || 0) - 1;
         return poll;
@@ -75,6 +81,13 @@ export default function PollWrapper({
     },
     [prevState]
   );
+
+  // rehydrate if they previously voted before
+  useEffect(() => {
+    const vote = localStorage.getItem(`vote-${pollID}`) as State | null;
+    if (!vote) return;
+    setPrevState(vote);
+  }, []);
 
   return (
     <Box className="flex flex-col items-center">

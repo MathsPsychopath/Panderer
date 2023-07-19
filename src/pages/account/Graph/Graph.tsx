@@ -2,12 +2,13 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import StartPoll from "./StartPoll/StartPoll";
 import { FetchedState, GraphContext } from "./context/GraphContext";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { SnackbarContext } from "../../../components/context/SnackbarContext";
-import { firestore } from "../../../firebase";
+import { auth, firestore } from "../../../firebase";
 import { useQuery } from "@tanstack/react-query";
 import ManagePoll from "./ManagePoll/ManagePoll";
 import { doc, getDoc } from "firebase/firestore";
+import { signInWithCustomToken } from "firebase/auth";
 
 export default function Graph() {
   // Check that they haven't already started a polling instance
@@ -18,6 +19,7 @@ export default function Graph() {
   const { state, dispatch } = useContext(GraphContext);
   const [isLoading, setLoading] = useState(true);
   const { user } = useUser();
+  const { getToken } = useAuth();
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
   const applyExistingPoll = useCallback(async () => {
     try {
@@ -64,8 +66,21 @@ export default function Graph() {
     enabled: false,
   });
 
+  const handleVisChange = useCallback(async () => {
+    if (!document.hidden && !auth.currentUser) {
+      const token = await getToken({ template: "integration_firebase" });
+      if (!token) throw new Error();
+      await signInWithCustomToken(auth, token);
+      console.log("aauthenticated");
+    }
+  }, []);
+
   useEffect(() => {
+    window.addEventListener("visibilitychange", handleVisChange);
     refetch();
+    return () => {
+      removeEventListener("visibilitychange", handleVisChange);
+    };
   }, []);
 
   return (

@@ -2,7 +2,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NotFound from "../misc/NotFound";
-import { firestore, rtDB } from "../../firebase";
+import { app, firestore, rtDB } from "../../firebase";
 import { SnackbarContext } from "../../components/context/SnackbarContext";
 import {
   Timestamp,
@@ -19,6 +19,13 @@ import {
   TUsableData,
 } from "../account/Graph/ManagePoll/ManagePoll";
 import { UTCTimestamp } from "lightweight-charts";
+import {
+  initializeAppCheck,
+  onTokenChanged,
+  ReCaptchaV3Provider,
+  Unsubscribe,
+} from "firebase/app-check";
+import usePoll from "./reducer";
 
 export type TPollMetadata = {
   creator: string;
@@ -28,21 +35,10 @@ export type TPollMetadata = {
   pollID: string;
 };
 
-type PollWithUser = TPollMetadata & { userID: string };
-
-type Poll =
-  | {
-      isValid: false;
-    }
-  | ({ isValid: true } & Omit<PollWithUser, "pollID">);
-
 export default function PublicPoll() {
   const { pollId } = useParams();
-  const [isLoading, setLoading] = useState(true);
-  const [poll, setPoll] = useState<Poll>({ isValid: false });
   const { dispatch } = useContext(SnackbarContext);
-  const [latestData, setLatestData] = useState<TUsableData | null>(null);
-  const [net, setNet] = useState(0);
+  const [state, pollDispatch] = usePoll();
 
   const tryApplyMetadata = useCallback(async () => {
     try {
@@ -53,13 +49,19 @@ export default function PublicPoll() {
       );
       const docSnaps = await getDocs(docRef);
       if (docSnaps.empty) {
-        setPoll({ isValid: false });
+        pollDispatch({ type: "SET_INVALID" });
         throw new Error("Could not find poll");
       }
       // if exists, then get user ID and get meta data
       const metadata = docSnaps.docs[0].data() as TPollMetadata;
       const userID = docSnaps.docs[0].id;
-      setPoll({ isValid: true, userID, ...metadata });
+      pollDispatch({
+        type: "SET_VALID",
+        data: {
+          userID,
+          ...metadata,
+        },
+      });
       // connect with poll/userid and handle value stream
       const pollRef = ref(rtDB, `polls/${pollId}`);
       onValue(pollRef, async (snapshot) => {
@@ -69,9 +71,7 @@ export default function PublicPoll() {
           ...(pollData as TLiveDataResult),
           time: pollData.timestamp.seconds as UTCTimestamp,
         };
-        setLatestData(usableData);
-        const net = pollData.approvers - pollData.disapprovers;
-        setNet(net);
+        pollDispatch({ type: "SET_LATEST_DATA", data: usableData });
       });
     } catch (error) {
       dispatch({
@@ -80,28 +80,77 @@ export default function PublicPoll() {
         msg: "Could not get poll data. Is this link valid?",
       });
     }
-    setLoading(false);
   }, []);
 
+  const handleVoterClose = useCallback(() => {
+    localStorage.removeItem("active");
+  }, []);
+
+  // hydrate page
   useEffect(() => {
+    /**
+     * if the user hasn't got public poll session, then
+     * apply metadata, then set public poll.
+     * Otherwise, block them
+     */
+    const session = localStorage.getItem("active");
+    if (session) {
+      // block
+      dispatch({
+        type: "SET_ALERT",
+        severity: "error",
+        msg: "Multi-voting is not allowed!",
+      });
+      pollDispatch({ type: "SET_INVALID" });
+      return;
+    }
+    addEventListener("beforeunload", handleVoterClose);
+    localStorage.setItem("active", "true");
     tryApplyMetadata();
+    return () => {
+      handleVoterClose();
+      removeEventListener("beforeunload", handleVoterClose);
+    };
   }, []);
 
-  return isLoading ? (
+  // recaptcha
+  useEffect(() => {
+    const appCheck = initializeAppCheck(app, {
+      // site key (public)
+      provider: new ReCaptchaV3Provider(
+        "6LffnzcnAAAAAB6mOavvt03-sxsvXBwZFolvaHm0"
+      ),
+      isTokenAutoRefreshEnabled: true,
+    });
+    const unsubscribe = onTokenChanged(
+      appCheck,
+      () => {},
+      (error) => {
+        console.error(error);
+        dispatch({
+          type: "SET_ALERT",
+          severity: "error",
+          msg: "RECAPTCHA says you're a robot. So we couldn't ",
+        });
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+  return state.isLoading ? (
     <Box className="flex h-screen w-full items-center justify-center">
       <CircularProgress />
     </Box>
-  ) : poll.isValid ? (
+  ) : state.isValid ? (
     <PollWrapper
-      creator={poll.creator}
-      profile_url={poll.profile_url}
-      started={poll.started}
-      title={poll.title}
+      creator={state.metadata.creator}
+      profile_url={state.metadata.profile_url}
+      started={state.metadata.started}
+      title={state.metadata.title}
       pollID={pollId!}
-      invalidatePoll={() => setPoll({ isValid: false })}
+      invalidatePoll={() => pollDispatch({ type: "SET_INVALID" })}
     >
       <Box className="h-80 w-full">
-        <RealTimeGraph net={net} timestamp={latestData?.time} />
+        <RealTimeGraph net={state.net} timestamp={state.pollData?.time} />
       </Box>
     </PollWrapper>
   ) : (

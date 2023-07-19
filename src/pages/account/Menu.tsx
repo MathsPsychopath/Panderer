@@ -64,12 +64,6 @@ export default function Menu() {
                 shimmer: true,
                 termsPageUrl: "/terms",
               },
-              elements: {
-                userPreviewMainIdentifier: "font-sans",
-                userPreviewSecondaryIdentifier: "font-sans",
-                userButtonPopoverActionButtonText: "font-sans",
-                userButtonPopoverFooter: "font-sans",
-              },
             }}
           />
         </Toolbar>

@@ -42,7 +42,7 @@ const navLinks: NavigationObject[] = [
 
 export default function Menu() {
   const [isMenuOpen, setOpen] = useState(true);
-  const isBig = useMediaQuery("(min-width:640px)");
+  const isBig = useMediaQuery("(min-width:768px)");
   return (
     <Box className="flex">
       <AppBar
@@ -54,7 +54,7 @@ export default function Menu() {
             <ButtonBase onClick={() => setOpen(!isMenuOpen)}>
               {isBig ? null : isMenuOpen ? <Close /> : <MenuIcon />}
             </ButtonBase>
-            <Typography variant="button" className="text-lg">
+            <Typography variant="h5" className="text-lg">
               Panderer
             </Typography>
           </Box>

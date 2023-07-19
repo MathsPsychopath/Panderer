@@ -93,12 +93,10 @@ export default function ManagePoll() {
   }, [state.pollID]);
 
   return (
-    <Box className="relative flex flex-col gap-2 pb-36">
-      <Paper className="mt-2 flex flex-col items-center gap-8 p-4">
+    <Box className="relative m-2 flex flex-col gap-2 pb-36">
+      <Paper className="mt-2 flex flex-col items-center p-4">
         <Box className="flex w-full items-center justify-evenly p-4">
-          <Typography variant="h5" className="place-self-start text-2xl">
-            Manage "{state.title}"
-          </Typography>
+          <Typography variant="caption">Manage "{state.title}"</Typography>
           <Typography variant="caption">
             Started: {ago(state.started)}
           </Typography>

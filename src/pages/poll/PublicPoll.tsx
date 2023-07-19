@@ -121,6 +121,7 @@ export default function PublicPoll() {
       started={state.metadata.started}
       title={state.metadata.title}
       pollID={pollId!}
+      pollData={state.pollData}
       invalidatePoll={() => pollDispatch({ type: "SET_INVALID" })}
     >
       <Box className="h-80 w-full">

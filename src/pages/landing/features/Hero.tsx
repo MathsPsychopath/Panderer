@@ -1,9 +1,8 @@
-import { Box, Typography, useMediaQuery } from "@mui/material";
+import { Box, LinearProgress, Typography, useMediaQuery } from "@mui/material";
 import {
   BatteryFull,
   ExpandLess,
   ExpandMore,
-  Menu,
   NetworkWifi,
   PanTool,
   SignalCellular4Bar,
@@ -205,8 +204,11 @@ function MobileHero() {
           <BatteryFull className="rotate-90 text-[1.25rem]" />
         </Box>
       </Box>
-      <Typography className="flex justify-center text-black" variant="h6">
-        xQc
+      <Typography
+        className="flex justify-center text-xl text-gray-500"
+        variant="caption"
+      >
+        AM I BAD?
       </Typography>
       <Box className="px-6 py-2">
         <Box className="flex justify-between">
@@ -242,6 +244,7 @@ function MobileHero() {
       </Box>
       <Box>
         <Box className="m-4 flex flex-col justify-center gap-4 ">
+          <LinearProgress value={100} variant="determinate" />
           <Box className="flex gap-2">
             <PrimaryButton
               variant="contained"
@@ -269,7 +272,7 @@ function MobileHero() {
         </Box>
         <Box className="h-px w-full bg-secondary-button" />
         <Typography variant="h5" className="mx-4 text-[1.125rem]">
-          Streamer information
+          Started by: xQc
         </Typography>
       </Box>
     </Box>
@@ -327,11 +330,9 @@ function DesktopChart() {
 function DesktopHero() {
   return (
     <Box className="hero-drop-shadow w-[50rem] rounded-md outline outline-4 outline-black">
-      <Box className="flex items-center justify-between bg-background p-4 px-8">
+      <Box className="flex items-center justify-center bg-background p-4 px-8">
         <img src={logo} alt="logo" className="h-10 w-10" />
-        <Menu />
       </Box>
-
       <Box className="relative h-[25rem] overflow-hidden bg-secondary-button p-4">
         <Box className="absolute right-5 flex h-[20rem] w-4/5 flex-col gap-4 bg-background p-8 pb-5">
           <Box className="flex items-center justify-between">

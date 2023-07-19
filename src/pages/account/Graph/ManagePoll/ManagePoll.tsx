@@ -92,6 +92,7 @@ export default function ManagePoll() {
     });
   }, [state.pollID]);
 
+  // need to handle poll duration exceed length
   return (
     <Box className="relative m-2 flex flex-col gap-2 pb-36">
       <Paper className="mt-2 flex flex-col items-center p-4">
@@ -101,6 +102,7 @@ export default function ManagePoll() {
             Started: {ago(state.started)}
           </Typography>
         </Box>
+        <Typography variant="h5">{net} Approval</Typography>
         <Box className="h-80 w-full">
           <RealTimeGraph net={net} timestamp={latestData?.time} />
         </Box>

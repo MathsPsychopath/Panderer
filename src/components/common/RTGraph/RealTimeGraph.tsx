@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import {
   IChartApi,
   ISeriesApi,
@@ -66,10 +66,7 @@ export default function RealTimeGraph({ timestamp, net }: TChartData) {
   }, [net]);
 
   return (
-    <Box className="mx-auto flex h-full w-[95%] flex-col items-center">
-      <Typography variant="h4" className="self-start pl-4 pt-2">
-        {net} Approval
-      </Typography>
+    <Box className="mx-auto flex h-full w-[95%]">
       <Box id="candlesticks" className="w-full flex-grow" />
     </Box>
   );

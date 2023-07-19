@@ -12,7 +12,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../../components/common/Buttons";
-import { onDisconnect, ref, runTransaction } from "firebase/database";
+import { ref, runTransaction } from "firebase/database";
 import { rtDB } from "../../firebase";
 import { TLiveDataResult } from "../account/Graph/ManagePoll/ManagePoll";
 import { Timestamp } from "firebase/firestore";
@@ -37,6 +37,7 @@ export default function PollWrapper({
   invalidatePoll,
 }: TPollLayoutInfo & InvalidatePoll) {
   // fix layout
+  // update the layout with props
   const pollRef = useRef(ref(rtDB, `polls/${pollID}`));
   const [prevState, setPrevState] = useState<State | null>(null);
   const { dispatch } = useContext(SnackbarContext);
@@ -82,11 +83,21 @@ export default function PollWrapper({
     [prevState]
   );
 
+  const storageListener = useCallback(() => {
+    const otherVote = localStorage.getItem(`vote-${pollID}`) as State | null;
+    if (!otherVote) return;
+    setPrevState(otherVote);
+  }, []);
+
   // rehydrate if they previously voted before
   useEffect(() => {
     const vote = localStorage.getItem(`vote-${pollID}`) as State | null;
     if (!vote) return;
     setPrevState(vote);
+    addEventListener("storage", storageListener);
+    return () => {
+      removeEventListener("storage", storageListener);
+    };
   }, []);
 
   return (

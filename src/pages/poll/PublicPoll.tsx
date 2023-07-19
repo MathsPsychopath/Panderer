@@ -1,5 +1,5 @@
 import { Box, CircularProgress } from "@mui/material";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import NotFound from "../misc/NotFound";
 import { app, firestore, rtDB } from "../../firebase";
@@ -23,7 +23,6 @@ import {
   initializeAppCheck,
   onTokenChanged,
   ReCaptchaV3Provider,
-  Unsubscribe,
 } from "firebase/app-check";
 import usePoll from "./reducer";
 
@@ -82,35 +81,9 @@ export default function PublicPoll() {
     }
   }, []);
 
-  const handleVoterClose = useCallback(() => {
-    localStorage.removeItem("active");
-  }, []);
-
   // hydrate page
   useEffect(() => {
-    /**
-     * if the user hasn't got public poll session, then
-     * apply metadata, then set public poll.
-     * Otherwise, block them
-     */
-    const session = localStorage.getItem("active");
-    if (session) {
-      // block
-      dispatch({
-        type: "SET_ALERT",
-        severity: "error",
-        msg: "Multi-voting is not allowed!",
-      });
-      pollDispatch({ type: "SET_INVALID" });
-      return;
-    }
-    addEventListener("beforeunload", handleVoterClose);
-    localStorage.setItem("active", "true");
     tryApplyMetadata();
-    return () => {
-      handleVoterClose();
-      removeEventListener("beforeunload", handleVoterClose);
-    };
   }, []);
 
   // recaptcha
@@ -136,6 +109,7 @@ export default function PublicPoll() {
     );
     return () => unsubscribe();
   }, []);
+
   return state.isLoading ? (
     <Box className="flex h-screen w-full items-center justify-center">
       <CircularProgress />

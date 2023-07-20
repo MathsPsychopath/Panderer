@@ -56,21 +56,24 @@ export function copyClipboard(
   };
 }
 
+type DataPoint = {
+  average: number;
+  maxApproval: number;
+  maxDisapproval: number;
+  maxParticipants: number;
+  timestamp: Timestamp;
+};
+
+export type UserData = {
+  history: DataPoint[];
+  timePolled: number;
+};
+
 export async function updateStats(
   userID: string,
   stats: State,
   timeStarted: Timestamp
 ) {
-  type DataPoint = {
-    average: number;
-    maxApproval: number;
-    maxDisapproval: number;
-    maxParticipants: number;
-  };
-  type UserData = {
-    history: DataPoint[];
-    timePolled: number;
-  };
   const statRef = doc(firestore, "user-data", userID);
   return runTransaction(firestore, async (transaction) => {
     const snapshot = await transaction.get(statRef);
@@ -81,11 +84,14 @@ export async function updateStats(
       oldStats.timePolled +
       Math.ceil((Date.now() / 1000 - timeStarted.seconds) / 60);
     // roll the 14 poll history
-    const { point, ...formatted } = stats;
+    const { point, ...formatted } = stats as {
+      point: number;
+    } & Partial<DataPoint>;
     if (oldStats.history.length > 10) {
       oldStats.history.shift();
     }
-    newStats.history.push(...oldStats.history, formatted);
+    formatted.timestamp = Timestamp.now();
+    newStats.history.push(...oldStats.history, formatted as DataPoint);
     transaction.set(statRef, newStats);
   });
 }

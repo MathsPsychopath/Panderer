@@ -16,7 +16,6 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { useState } from "react";
 import { Outlet, Link as RouterLink } from "react-router-dom";
@@ -42,7 +41,6 @@ const navLinks: NavigationObject[] = [
 
 export default function Menu() {
   const [isMenuOpen, setOpen] = useState(true);
-  const isBig = useMediaQuery("(min-width:768px)");
   return (
     <Box className="flex">
       <AppBar
@@ -52,7 +50,7 @@ export default function Menu() {
         <Toolbar className="flex justify-between">
           <Box className="flex items-center gap-4">
             <ButtonBase onClick={() => setOpen(!isMenuOpen)}>
-              {isBig ? null : isMenuOpen ? <Close /> : <MenuIcon />}
+              {isMenuOpen ? <Close /> : <MenuIcon />}
             </ButtonBase>
             <Typography variant="h5" className="text-lg">
               Panderer
@@ -69,7 +67,7 @@ export default function Menu() {
         </Toolbar>
       </AppBar>
       <Drawer
-        variant={isBig ? "permanent" : "temporary"}
+        variant="temporary"
         open={isMenuOpen}
         onClose={() => setOpen(false)}
         sx={{

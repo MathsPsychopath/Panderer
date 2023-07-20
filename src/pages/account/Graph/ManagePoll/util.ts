@@ -1,5 +1,8 @@
 import { NavigateFunction } from "react-router-dom";
 import { Action } from "../../../../components/context/SnackbarContext";
+import { State } from "./useDataAggregate";
+import { Timestamp, doc, runTransaction } from "firebase/firestore";
+import { firestore } from "../../../../firebase";
 
 // type TDeleteObject = {
 //   [s: string]: null;
@@ -51,4 +54,38 @@ export function copyClipboard(
       }, 3000);
     }
   };
+}
+
+export async function updateStats(
+  userID: string,
+  stats: State,
+  timeStarted: Timestamp
+) {
+  type DataPoint = {
+    average: number;
+    maxApproval: number;
+    maxDisapproval: number;
+    maxParticipants: number;
+  };
+  type UserData = {
+    history: DataPoint[];
+    timePolled: number;
+  };
+  const statRef = doc(firestore, "user-data", userID);
+  return runTransaction(firestore, async (transaction) => {
+    const snapshot = await transaction.get(statRef);
+    const newStats: UserData = { history: [], timePolled: 0 };
+    const oldStats = snapshot.data() as UserData;
+    // add time
+    newStats.timePolled =
+      oldStats.timePolled +
+      Math.ceil((Date.now() / 1000 - timeStarted.seconds) / 60);
+    // roll the 14 poll history
+    const { point, ...formatted } = stats;
+    if (oldStats.history.length > 10) {
+      oldStats.history.shift();
+    }
+    newStats.history.push(...oldStats.history, formatted);
+    transaction.set(statRef, newStats);
+  });
 }

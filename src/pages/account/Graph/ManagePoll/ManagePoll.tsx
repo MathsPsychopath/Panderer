@@ -10,14 +10,15 @@ import {
   SnackbarContext,
 } from "../../../../components/context/SnackbarContext";
 import { useNavigate } from "react-router-dom";
-import { ago, copyClipboard } from "./util";
+import { ago, copyClipboard, updateStats } from "./util";
 import { firestore, rtDB } from "../../../../firebase";
 import RealTimeGraph from "../../../../components/common/RTGraph/RealTimeGraph";
 import Statistics from "./Statistics";
 import { onValue, ref, remove } from "firebase/database";
-import { Timestamp, deleteDoc, doc } from "firebase/firestore";
+import { Timestamp, deleteDoc, doc, getDoc } from "firebase/firestore";
 import { useUser } from "@clerk/clerk-react";
 import { UTCTimestamp } from "lightweight-charts";
+import useDataAggregate from "./useDataAggregate";
 
 export type TLiveDataResult = {
   userId: string;
@@ -40,6 +41,7 @@ export default function ManagePoll() {
   const [net, setNet] = useState(0);
   const navigate = useNavigate();
   const { user } = useUser();
+  const [stats, setStats] = useDataAggregate();
 
   // need to cast type for parameter usage
   const dispatchAsParam = useCallback(
@@ -54,11 +56,15 @@ export default function ManagePoll() {
         throw new Error("User ID could not be found. Try re-logging");
       // get the pollID and delete the poll metadata
       const docRef = doc(firestore, "live-polls", user.id);
+      const timeStarted = (await getDoc(docRef)).data()!.started as Timestamp;
       // async delete the metadata
       const metaPromise = deleteDoc(docRef);
       // delete the poll
       const pollRef = ref(rtDB, `/polls/${state.pollID}`);
       const pollPromise = remove(pollRef);
+      // add statistics
+      await updateStats(user.id, stats, timeStarted);
+
       await Promise.allSettled([metaPromise, pollPromise]);
       snackbarDispatch({
         type: "SET_ALERT",
@@ -74,7 +80,7 @@ export default function ManagePoll() {
         msg: error as string,
       });
     }
-  }, [state.pollID]);
+  }, [state.pollID, stats]);
 
   // connect to the poll in the real time database
   useEffect(() => {
@@ -89,6 +95,17 @@ export default function ManagePoll() {
       setLatestData(usableData);
       const net = pollData.approvers - pollData.disapprovers;
       setNet(net);
+      setStats({
+        type: "UPDATE_AVERAGE",
+        nextData: net,
+      });
+      setStats({
+        type: "UPDATE_MAX",
+        approvals: usableData.approvers,
+        disapprovals: usableData.disapprovers,
+        participants:
+          usableData.abstained + usableData.approvers + usableData.disapprovers,
+      });
     });
   }, [state.pollID]);
 

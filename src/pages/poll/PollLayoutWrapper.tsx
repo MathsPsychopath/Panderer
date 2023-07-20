@@ -140,7 +140,7 @@ export default function PollWrapper({
                 Approval
               </Typography>
               <Typography variant="caption">
-                {timeString(started.seconds)}
+                Started {timeString(started.seconds)}
               </Typography>
             </Box>
             <Box className="flex items-center gap-4">

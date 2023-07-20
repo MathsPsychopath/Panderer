@@ -20,7 +20,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { Timestamp, doc, setDoc } from "firebase/firestore";
+import { Timestamp, doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, firestore, rtDB } from "../../../../firebase";
 import { useUser } from "@clerk/clerk-react";
 import { SnackbarContext } from "../../../../components/context/SnackbarContext";
@@ -58,6 +58,16 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
         title,
         pollID,
       });
+
+      // insert poll stats if doesn't exist
+      const statRef = doc(firestore, "user-data", user.id);
+      const snapshot = await getDoc(statRef);
+      if (!snapshot.exists()) {
+        await setDoc(statRef, {
+          timePolled: 0,
+          history: [],
+        });
+      }
 
       // insert a new real time poll
       await set(ref(rtDB, "polls/" + pollID), {

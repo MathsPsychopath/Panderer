@@ -1,6 +1,6 @@
-import { Button, ButtonProps } from "@mui/material";
+import { Button, ButtonProps, LinkProps } from "@mui/material";
 
-function PrimaryButton({ className, ...props }: ButtonProps) {
+function PrimaryButton({ className, ...props }: ButtonProps & LinkProps) {
   return (
     <Button
       className={`bg-primary-button px-8 py-3 font-medium ${className}`}
@@ -11,7 +11,7 @@ function PrimaryButton({ className, ...props }: ButtonProps) {
   );
 }
 
-function SecondaryButton({ className, ...props }: ButtonProps) {
+function SecondaryButton({ className, ...props }: ButtonProps & LinkProps) {
   return (
     <Button
       className={`bg-secondary-button px-8 py-3 font-normal ${className}`}

@@ -1,13 +1,9 @@
-// Rolling 14 poll history of max value on poll. Aggregate by client side 20s
-// setInterval 20s, update the user data with max(current, new)
-// max participants bar chart
-// usage time history - onClose, calc diff started - now, add to user data
-
 import {
   Box,
   ButtonBase,
   CircularProgress,
   Paper,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ExpandableCard from "./ExpandableCard";
@@ -21,6 +17,7 @@ import { UserData } from "../Graph/ManagePoll/util";
 import { getLocalizedTime } from "../../../components/common/RTGraph/useCandlestick";
 import { UTCTimestamp } from "lightweight-charts";
 import LineChart from "./LineChart";
+import { Info } from "@mui/icons-material";
 
 export default function Dashboard() {
   const [isLoading, setLoading] = useState(true);
@@ -34,7 +31,6 @@ export default function Dashboard() {
       if (!user?.id) throw new Error("Could not get data. Try re-logging.");
       const docRef = doc(firestore, "user-data", user.id);
       const snapshot = await getDoc(docRef);
-      console.log(snapshot.data());
       if (!snapshot.exists())
         throw new Error("No data found. Start a poll to get some data");
       setData(snapshot.data() as UserData);
@@ -69,7 +65,12 @@ export default function Dashboard() {
             elevation={3}
             className="col-start-1 col-end-5 row-start-1 row-end-3 p-4 lg:col-start-1 lg:col-end-4 lg:row-start-1 lg:row-end-3"
           >
-            <Typography variant="h5">Past peak approvals:</Typography>
+            <Box className="flex items-center justify-between">
+              <Typography variant="h5">Past peak approvals :</Typography>
+              <Tooltip title="Score stats are only calculated when you close the poll yourself">
+                <Info />
+              </Tooltip>
+            </Box>
             {isLoading ? (
               <CircularProgress variant="indeterminate" />
             ) : data ? (

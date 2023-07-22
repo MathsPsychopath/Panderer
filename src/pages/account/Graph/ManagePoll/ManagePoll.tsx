@@ -1,5 +1,12 @@
 import { Box, Paper, Typography } from "@mui/material";
-import { useCallback, useContext, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { GraphContext } from "../context/GraphContext";
 import {
   PrimaryButton,
@@ -10,15 +17,15 @@ import {
   SnackbarContext,
 } from "../../../../components/context/SnackbarContext";
 import { useNavigate } from "react-router-dom";
-import { ago, copyClipboard, updateStats } from "./util";
-import { firestore, rtDB } from "../../../../firebase";
+import { ago, copyClipboard } from "./util";
+import { functions, rtDB } from "../../../../firebase";
 import RealTimeGraph from "../../../../components/common/RTGraph/RealTimeGraph";
 import Statistics from "./Statistics";
-import { onValue, ref, remove } from "firebase/database";
-import { Timestamp, deleteDoc, doc, getDoc } from "firebase/firestore";
+import { DataSnapshot, onValue, ref } from "firebase/database";
+import { Timestamp } from "firebase/firestore";
 import { useUser } from "@clerk/clerk-react";
 import { UTCTimestamp } from "lightweight-charts";
-import useDataAggregate from "./useDataAggregate";
+import { httpsCallable } from "firebase/functions";
 
 export type TLiveDataResult = {
   userId: string;
@@ -26,14 +33,20 @@ export type TLiveDataResult = {
   approvers: number;
   abstained: number;
   disapprovers: number;
+  maxApprovers: number;
+  maxParticipants: number;
+  maxDisapprovers: number;
 };
 
 export type TUsableData = Omit<TLiveDataResult, "timestamp"> & {
   time: UTCTimestamp;
 };
 
-export default function ManagePoll() {
-  // need to make responsive and desktop composition
+export default function ManagePoll({
+  setExpiryDialog,
+}: {
+  setExpiryDialog: Dispatch<SetStateAction<boolean>>;
+}) {
   // NON-MVP option to set more information and change
   const { state, dispatch } = useContext(GraphContext);
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
@@ -41,7 +54,6 @@ export default function ManagePoll() {
   const [net, setNet] = useState(0);
   const navigate = useNavigate();
   const { user } = useUser();
-  const [stats, setStats] = useDataAggregate();
 
   // need to cast type for parameter usage
   const dispatchAsParam = useCallback(
@@ -49,67 +61,68 @@ export default function ManagePoll() {
     []
   );
 
-  // close all polls associated with user
-  const closePolls = useCallback(async () => {
-    try {
-      if (!user?.id)
-        throw new Error("User ID could not be found. Try re-logging");
-      // get the pollID and delete the poll metadata
-      const docRef = doc(firestore, "live-polls", user.id);
-      const timeStarted = (await getDoc(docRef)).data()!.started as Timestamp;
-      // async delete the metadata
-      const metaPromise = deleteDoc(docRef);
-      // delete the poll
-      const pollRef = ref(rtDB, `/polls/${state.pollID}`);
-      const pollPromise = remove(pollRef);
-      // add statistics
-      await updateStats(user.id, stats, timeStarted);
+  /**
+   * close all polls associated with user.
+   * Set auto if automatically closed by expiry
+   * */
+  const closePolls = useCallback(
+    async (auto: boolean = false) => {
+      try {
+        if (!user?.id) {
+          throw new Error("User ID could not be found. Try re-logging");
+        }
+        const deleteRequest = httpsCallable(functions, "removePoll");
+        await deleteRequest({ pollID: state.pollID, userID: user.id });
+        dispatch({ type: "CLOSE_POLL" });
+        auto ||
+          snackbarDispatch({
+            type: "SET_ALERT",
+            severity: "success",
+            msg: "Successfully closed poll",
+          });
+      } catch (error) {
+        console.error(error);
+        snackbarDispatch({
+          type: "SET_ALERT",
+          severity: "error",
+          msg: error as string,
+        });
+      }
+    },
+    [state.pollID]
+  );
 
-      await Promise.allSettled([metaPromise, pollPromise]);
-      snackbarDispatch({
-        type: "SET_ALERT",
-        severity: "success",
-        msg: "Successfully closed poll",
-      });
-      dispatch({ type: "CLOSE_POLL" });
-    } catch (error) {
-      console.error(error);
-      snackbarDispatch({
-        type: "SET_ALERT",
-        severity: "error",
-        msg: error as string,
-      });
+  // setTimeout 15 minutes, closePoll() and bring up modal
+  // do this on both public and signed in pages
+  // add help page images
+
+  // update latest data and check if session expired
+  const handleLiveData = useCallback(async (snapshot: DataSnapshot) => {
+    const pollData = snapshot.val();
+    if (!pollData) return;
+    const usableData: TUsableData = {
+      ...(pollData as TLiveDataResult),
+      time: pollData.timestamp.seconds as UTCTimestamp,
+    };
+    setLatestData(usableData);
+    const net = pollData.approvers - pollData.disapprovers;
+    setNet(net);
+    // expire poll after 15 minutes when signed in open
+    if (Date.now() - state.started.getTime() > 900000) {
+      setExpiryDialog(true);
+      await closePolls(true);
     }
-  }, [state.pollID, stats]);
+  }, []);
 
-  // connect to the poll in the real time database
+  // add listeners on mount
   useEffect(() => {
     const pollRef = ref(rtDB, `/polls/${state.pollID}`);
-    onValue(pollRef, (snapshot) => {
-      const pollData = snapshot.val();
-      if (!pollData) return;
-      const usableData: TUsableData = {
-        ...(pollData as TLiveDataResult),
-        time: pollData.timestamp.seconds as UTCTimestamp,
-      };
-      setLatestData(usableData);
-      const net = pollData.approvers - pollData.disapprovers;
-      setNet(net);
-      setStats({
-        type: "UPDATE_AVERAGE",
-        nextData: net,
-      });
-      setStats({
-        type: "UPDATE_MAX",
-        approvals: usableData.approvers,
-        disapprovals: usableData.disapprovers,
-        participants:
-          usableData.abstained + usableData.approvers + usableData.disapprovers,
-      });
-    });
-  }, [state.pollID]);
+    const unsub = onValue(pollRef, handleLiveData);
+    return () => {
+      unsub();
+    };
+  }, [state.pollID, state.started]);
 
-  // need to handle poll duration exceed length
   return (
     <Box className="relative m-2 flex flex-col gap-2 pb-36">
       <Paper className="mt-2 flex flex-col items-center p-4">
@@ -137,7 +150,10 @@ export default function ManagePoll() {
           >
             Share Link
           </PrimaryButton>
-          <SecondaryButton className="mx-auto w-[90%]" onClick={closePolls}>
+          <SecondaryButton
+            className="mx-auto w-[90%]"
+            onClick={() => closePolls()}
+          >
             Close Poll
           </SecondaryButton>
         </Box>

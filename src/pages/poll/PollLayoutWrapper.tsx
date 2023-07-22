@@ -70,6 +70,20 @@ export default function PollWrapper({
           getLocalizedTime(Math.floor(Date.now() / 1000)) * 1000
         );
         poll[nextState] = (poll[nextState] || 0) + 1;
+        if (nextState === "approvers") {
+          poll.maxApprovers = Math.max(poll.maxApprovers, poll.approvers);
+        }
+        if (nextState === "disapprovers") {
+          poll.maxDisapprovers = Math.max(
+            poll.maxDisapprovers,
+            poll.disapprovers
+          );
+        }
+        poll.maxParticipants = Math.max(
+          poll.maxParticipants,
+          poll.approvers + poll.disapprovers + poll.abstained - 1
+        );
+        console.log(poll);
         setPrevState(nextState);
         localStorage.setItem(`vote-${pollID}`, nextState);
         if (!prevState) return poll;

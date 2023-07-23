@@ -39,7 +39,6 @@ interface IRemovePoll {
 }
 
 export const removePoll = onCall(
-  { cors: ["https://panderer-fef7a.web.app/", "localhost:5173"] },
   async (context: CallableRequest<IRemovePoll>) => {
     const { userID, pollID } = context.data;
     const firestoreInstance = new Firestore();
@@ -79,7 +78,7 @@ export const removePoll = onCall(
         status: 200,
       };
     } catch (error: any) {
-      logger.error(error.message);
+      logger.error(error);
       return {
         status: 500,
         message: error.message || "An error occurred trying to execute",

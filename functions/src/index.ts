@@ -51,16 +51,17 @@ export const removePoll = onCall(
       if (metadata.pollID !== pollID)
         throw new Error("Invalid pollID does not match user's poll");
 
-      const minutesPolled = Math.ceil(
-        (Date.now() / 1000 - metadata.started.seconds) / 60
-      );
-
       await firestoreInstance.deleteDocument();
 
       const poll = await realtimeInstance.getObject<RTDBData>(
         `/polls/${pollID}`
       );
-      const { maxApprovers, maxDisapprovers, maxParticipants } = poll;
+      const { maxApprovers, maxDisapprovers, maxParticipants, timeStarted } =
+        poll;
+
+      const timePolled = Math.ceil(
+        (Date.now() / 1000 - timeStarted.seconds) / 60
+      );
 
       await realtimeInstance.deleteObject();
 
@@ -70,7 +71,7 @@ export const removePoll = onCall(
         maxApprovers,
         maxDisapprovers,
         maxParticipants,
-        minutesPolled
+        timePolled
       );
 
       return {

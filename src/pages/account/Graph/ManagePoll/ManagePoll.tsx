@@ -125,7 +125,7 @@ export default function ManagePoll({
     return () => {
       unsub();
     };
-  }, [state.pollID, state.started]);
+  }, [state.pollID]);
 
   return (
     <Box className="relative m-2 flex flex-col gap-2 pb-36">
@@ -133,7 +133,12 @@ export default function ManagePoll({
         <Box className="flex w-full items-center justify-evenly p-4">
           <Typography variant="caption">Manage "{state.title}"</Typography>
           <Typography variant="caption">
-            Started: {ago(state.started)}
+            Started:{" "}
+            {ago(
+              latestData
+                ? new Date(latestData.timeStarted.seconds * 1000)
+                : new Date()
+            )}
           </Typography>
         </Box>
         <Typography variant="h5">{net} Approval</Typography>

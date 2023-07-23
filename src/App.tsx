@@ -18,6 +18,7 @@ import NotFound from "./pages/misc/NotFound";
 import accountRoutes from "./pages/account/accountRoutes";
 import PublicPoll from "./pages/poll/PublicPoll";
 import FirebaseSignIn from "./pages/login/FirebaseSignIn";
+import { PublicPollProvider } from "./pages/poll/PublicPollContext";
 
 const browserRouter = createBrowserRouter([
   {
@@ -68,7 +69,11 @@ const browserRouter = createBrowserRouter([
   },
   {
     path: "/poll/:pollId",
-    element: <PublicPoll />,
+    element: (
+      <PublicPollProvider>
+        <PublicPoll />
+      </PublicPollProvider>
+    ),
   },
   {
     path: "*",

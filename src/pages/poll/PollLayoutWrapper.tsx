@@ -26,9 +26,8 @@ import {
 } from "../account/Graph/ManagePoll/ManagePoll";
 import { Timestamp } from "firebase/firestore";
 import { SnackbarContext } from "../../components/context/SnackbarContext";
-import { getLocalizedTime } from "../../components/common/RTGraph/useCandlestick";
 import logo from "./android-chrome-192x192.png";
-import usePoll from "./reducer";
+import { PublicPollContext } from "./PublicPollContext";
 
 type TPollLayoutInfo = TPollMetadata & {
   children: React.ReactNode;
@@ -37,23 +36,11 @@ type TPollLayoutInfo = TPollMetadata & {
 
 type State = "abstained" | "approvers" | "disapprovers";
 
-// this displays the incorrect time +1 hr for some reason
-const timeString = (s: number) => {
-  const time = getLocalizedTime(s);
-  const localDate = new Date(time * 1000);
-  const hours = localDate.getHours();
-  const minutes = localDate.getMinutes();
-  return `${hours}:${(minutes < 10 ? "0" : "") + minutes} ${
-    hours < 12 ? "AM" : "PM"
-  }`;
-};
-
 // handles layout for the public facing poll value
 export default function PollWrapper({
   creator,
   profile_url,
   title,
-  started,
   children,
   pollID,
   pollData,
@@ -63,9 +50,16 @@ export default function PollWrapper({
   const { dispatch } = useContext(SnackbarContext);
   const [disabled, setDisabled] = useState(false);
   const [progress, setProgress] = useState(100);
-  const [state] = usePoll();
+  const { state } = useContext(PublicPollContext);
 
-  // i can still press buttons when the live poll is removed
+  const timeString = useCallback((s: number) => {
+    const localDate = new Date(s * 1000);
+    const hours = localDate.getHours();
+    const minutes = localDate.getMinutes();
+    return `${hours}:${(minutes < 10 ? "0" : "") + minutes} ${
+      hours < 12 ? "AM" : "PM"
+    }`;
+  }, []);
 
   const handleClick = useCallback(
     async (nextState: State) => {
@@ -73,7 +67,7 @@ export default function PollWrapper({
         if (!poll)
           return {
             userID: state.isValid ? state.metadata.userID : "unknown",
-            timestamp: started,
+            timestamp: Timestamp.now(),
             approvers: 0,
             abstained: 0,
             disapprovers: 0,
@@ -82,7 +76,7 @@ export default function PollWrapper({
             maxParticipants: 0,
           };
         poll.timestamp = Timestamp.fromMillis(
-          getLocalizedTime(Math.floor(Date.now() / 1000)) * 1000
+          Math.floor(Date.now() / 1000) * 1000
         );
         poll[nextState] = (poll[nextState] || 0) + 1;
         if (nextState === "approvers") {
@@ -144,6 +138,7 @@ export default function PollWrapper({
       removeEventListener("storage", storageListener);
     };
   }, []);
+
   return (
     <Box className="h-screen bg-secondary-button">
       <Box className="mx-auto flex flex-col items-center justify-evenly gap-1 sm:w-[40rem] md:w-[50rem]">
@@ -164,7 +159,9 @@ export default function PollWrapper({
                 Approval
               </Typography>
               <Typography variant="caption">
-                Started {timeString(started.seconds)}
+                {state.isValid && state.pollData
+                  ? timeString(state.pollData.time)
+                  : "???"}
               </Typography>
             </Box>
             <Box className="flex items-center gap-4">

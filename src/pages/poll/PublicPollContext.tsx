@@ -1,4 +1,4 @@
-import { Dispatch, useReducer } from "react";
+import { Dispatch, createContext, useReducer } from "react";
 import { TUsableData } from "../account/Graph/ManagePoll/ManagePoll";
 import { TPollMetadata } from "./PublicPoll";
 
@@ -74,7 +74,25 @@ const initialState: State = {
   isValid: false,
 };
 
-export default function usePoll(): [State, Dispatch<Action>] {
+interface IPublicContext {
+  state: State;
+  dispatch: Dispatch<Action>;
+}
+
+export const PublicPollContext = createContext<IPublicContext>({
+  state: initialState,
+  dispatch: () => {},
+});
+
+export function PublicPollProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  return [state, dispatch];
+  return (
+    <PublicPollContext.Provider value={{ state, dispatch }}>
+      {children}
+    </PublicPollContext.Provider>
+  );
 }

@@ -4,13 +4,7 @@ import { useParams } from "react-router-dom";
 import NotFound from "../misc/NotFound";
 import { app, firestore, functions, rtDB } from "../../firebase";
 import { SnackbarContext } from "../../components/context/SnackbarContext";
-import {
-  Timestamp,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import PollWrapper from "./PollLayoutWrapper";
 import RealTimeGraph from "../../components/common/RTGraph/RealTimeGraph";
 import { onValue, ref } from "firebase/database";
@@ -24,13 +18,12 @@ import {
   onTokenChanged,
   ReCaptchaV3Provider,
 } from "firebase/app-check";
-import usePoll from "./reducer";
 import { httpsCallable } from "firebase/functions";
+import { PublicPollContext } from "./PublicPollContext";
 
 export type TPollMetadata = {
   creator: string;
   profile_url: string;
-  started: Timestamp;
   title: string;
   pollID: string;
 };
@@ -38,7 +31,7 @@ export type TPollMetadata = {
 export default function PublicPoll() {
   const { pollId } = useParams();
   const { dispatch } = useContext(SnackbarContext);
-  const [state, pollDispatch] = usePoll();
+  const { state, dispatch: pollDispatch } = useContext(PublicPollContext);
 
   const closePollPublic = useCallback(
     async (userID: string) => {
@@ -151,7 +144,6 @@ export default function PublicPoll() {
     <PollWrapper
       creator={state.metadata.creator}
       profile_url={state.metadata.profile_url}
-      started={state.metadata.started}
       title={state.metadata.title}
       pollID={pollId!}
       pollData={state.pollData!}

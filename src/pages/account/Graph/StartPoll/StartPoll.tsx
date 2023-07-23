@@ -37,13 +37,13 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
   const { user } = useUser();
   const { dispatch } = useContext(SnackbarContext);
   const { dispatch: pollDispatch } = useContext(GraphContext);
+
   const startPoll = useCallback(async () => {
     setLoading(true);
     const pollID = window.crypto.randomUUID();
     try {
       if (!user?.id) throw new Error();
-      const timestamp = new Date();
-      const started = Timestamp.fromDate(timestamp);
+      const started = Timestamp.now();
       const creator =
         user?.username || auth.currentUser?.displayName || "Unknown";
       const profile_url =
@@ -54,7 +54,6 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
       await setDoc(docRef, {
         creator,
         profile_url,
-        started, // this is the firebase date
         title,
         pollID,
       });
@@ -85,7 +84,6 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
       pollDispatch({
         type: "OPEN_POLL",
         title,
-        started: timestamp, // this is the JS date
         pollID,
       });
       setDialog(false);

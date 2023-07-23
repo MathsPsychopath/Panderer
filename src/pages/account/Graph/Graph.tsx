@@ -23,6 +23,7 @@ export default function Graph() {
   const { user } = useUser();
   const { getToken } = useAuth();
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
+
   const applyExistingPoll = useCallback(async () => {
     try {
       if (!user?.id) throw new Error();
@@ -34,11 +35,10 @@ export default function Graph() {
         return;
       }
       // if so, then apply options
-      const { title, started, pollID } = snapshot.data() as FetchedState;
+      const { title, pollID } = snapshot.data() as FetchedState;
       dispatch({
         type: "OPEN_POLL",
         title,
-        started: started.toDate(),
         pollID,
       });
       snackbarDispatch({

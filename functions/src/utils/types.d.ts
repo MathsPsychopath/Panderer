@@ -6,13 +6,13 @@ export type Metadata = {
   creator: string;
   pollID: string;
   profile_url: string;
-  started: Timestamp;
   title: string;
 };
 
 export type RTDBData = {
   userId: string;
   timestamp: Timestamp;
+  timeStarted: Timestamp;
   approvers: number;
   abstained: number;
   disapprovers: number;

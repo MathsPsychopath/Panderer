@@ -13,9 +13,6 @@ interface IExpiredDialog {
   isPublic?: boolean;
 }
 
-// add expiry dialog
-// button to google form
-
 export function ExpiryDialog({
   isDialogOpen,
   onDialogClose,

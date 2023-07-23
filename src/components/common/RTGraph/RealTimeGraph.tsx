@@ -15,7 +15,6 @@ export type TChartData = {
 
 export default function RealTimeGraph({ timestamp, net }: TChartData) {
   // NON MVP - add multiple time frames, different graph types,
-  // use settimeout, set the time = Math.round(time / 60) * 60
   const chart = useRef<null | IChartApi>(null);
   const candlestickRef = useRef<null | ISeriesApi<"Candlestick">>(null);
   const timer = useRef<NodeJS.Timeout>();

@@ -1,5 +1,4 @@
 import { Box, Typography } from "@mui/material";
-// import { collection } from "firebase/firestore";
 import FooterSection from "./features/Footer";
 import CallToAction from "./features/CallToAction";
 import ReasonSection from "./features/ReasonSection";

@@ -247,14 +247,12 @@ function MobileHero() {
           <LinearProgress value={100} variant="determinate" />
           <Box className="flex gap-2">
             <PrimaryButton
-              variant="contained"
               endIcon={<ExpandMore />}
               className="pointer-events-none w-36 px-8 py-3 "
             >
               Downvote
             </PrimaryButton>
             <PrimaryButton
-              variant="contained"
               endIcon={<ExpandLess />}
               className="pointer-events-none w-36 px-8 py-3"
             >
@@ -262,7 +260,6 @@ function MobileHero() {
             </PrimaryButton>
           </Box>
           <SecondaryButton
-            variant="contained"
             color="inherit"
             endIcon={<PanTool />}
             className="pointer-events-none px-8 py-3"
@@ -345,7 +342,7 @@ function DesktopHero() {
               <Typography variant="h5">Ludwig</Typography>
             </Box>
             <Box className="flex flex-col items-end">
-              <Typography variant="h5">+65 Approval </Typography>
+              <Typography variant="h5">65 Approval </Typography>
               <Typography variant="caption">9:35 AM</Typography>
             </Box>
           </Box>

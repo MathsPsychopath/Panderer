@@ -44,8 +44,8 @@ export default function ReasonSection() {
               </Typography>
             </Box>
             <Typography variant="body1" className="w-80">
-              Integrate seamlessly with your OBS setup with a dedicated browser
-              source page to streamline the experience.
+              Integrate seamlessly with a single browser source to streamline
+              the experience.
             </Typography>
           </Box>
         </Box>

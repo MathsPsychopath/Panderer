@@ -93,9 +93,6 @@ export default function ManagePoll({
     [state.pollID]
   );
 
-  // refactor GraphContext, usePoll to remove redundant information
-  // look at source, modification, end
-
   // update latest data and check if session expired
   const handleLiveData = useCallback(async (snapshot: DataSnapshot) => {
     const pollData = snapshot.val();

@@ -31,11 +31,11 @@ export default function CallToAction() {
       </Box>
       <Box className="flex w-60 flex-col gap-4">
         <Typography variant="h6" className="text-primary-button">
-          Free until it's not.
+          Free 15 minute taster
         </Typography>
         <Typography>
-          Right now, Panderer is free of costs and charges to use. There are no
-          hidden or future fees by using now.
+          Right now, Panderer is free of costs and charges to try out for 15
+          minutes. Give us a review after if you want longer poll durations.
         </Typography>
       </Box>
     </Box>

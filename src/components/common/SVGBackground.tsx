@@ -1,10 +1,13 @@
-export default function SVGBackground() {
+interface IBackground {
+  height?: string;
+}
+export default function SVGBackground({ height }: IBackground) {
   return (
     <svg
       id="visual"
       viewBox="0 0 900 600"
       width="100%"
-      height="100vh"
+      height={height ?? "100vh"}
       className="absolute inset-0 z-[-1] bg-accent"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"

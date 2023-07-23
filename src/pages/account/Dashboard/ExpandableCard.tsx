@@ -24,7 +24,9 @@ export default function ExpandableCard({
     >
       <ButtonBase className="w-full" onClick={() => setShow(!showBody)}>
         <Box className="flex w-full items-center justify-between p-2">
-          <Typography variant="h5">{title}</Typography>
+          <Typography variant="h6" className="text-left">
+            {title}
+          </Typography>
           <Typography variant="caption">
             {timestamp.toDate().toDateString()}
           </Typography>

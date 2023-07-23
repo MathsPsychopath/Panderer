@@ -101,7 +101,10 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
     <Dialog open={isDialogOpen} onClose={() => setDialog(false)}>
       <DialogTitle>Start Poll</DialogTitle>
       <DialogContent className="flex flex-col gap-8 sm:w-80">
-        <DialogContentText>Choose a title for your poll:</DialogContentText>
+        <DialogContentText>
+          Choose a title for your poll. Keep in mind that polls will expire in
+          15 minutes:
+        </DialogContentText>
         {isLoading ? (
           <CircularProgress />
         ) : (

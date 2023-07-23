@@ -17,6 +17,7 @@ import { getLocalizedTime } from "../../../components/common/RTGraph/useCandlest
 import { UTCTimestamp } from "lightweight-charts";
 import LineChart from "./LineChart";
 import { Info } from "@mui/icons-material";
+import { PrimaryButton } from "../../../components/common/Buttons";
 
 type UserData = {
   history: {
@@ -124,6 +125,17 @@ export default function Dashboard() {
             <Typography variant="h5">Updates:</Typography>
             <Box className="my-4 flex flex-col gap-2">
               <ExpandableCard
+                title="v1.1.0"
+                elevation={2}
+                timestamp={Timestamp.fromDate(
+                  new Date("Sun, 23 Jul 2023 14:20:16 GMT")
+                )}
+              >
+                1. Major bug fixes
+                <br />
+                2. UI changes to landing page+
+              </ExpandableCard>
+              <ExpandableCard
                 title="v1.0.1"
                 elevation={2}
                 timestamp={Timestamp.fromDate(
@@ -163,6 +175,30 @@ export default function Dashboard() {
                 1. Open the menu on the top left <br />
                 2. Select "Start Poll" and click the "Start poll" button in
                 center
+                <br />
+                See the <a href="/guide">Guide</a>
+              </ExpandableCard>
+              <ExpandableCard
+                title="Why does the poll only last 15 minutes?"
+                elevation={2}
+                timestamp={Timestamp.fromDate(
+                  new Date("Wed, 23 Jul 2023 15:27:50 GMT")
+                )}
+              >
+                Hey there! Thanks for using Panderer.
+                <br />
+                We currently have a cap to minimise the chance of driving up a
+                unfundable large bill, but this may change if we see demand for
+                a longer service.
+                <br />
+                If you want to have longer polls, submit your feedback here:
+                <br />
+                <PrimaryButton
+                  href="https://forms.gle/hk3wCVvmyRxqbxv59"
+                  target="_blank"
+                >
+                  Feedback
+                </PrimaryButton>
               </ExpandableCard>
             </Box>
           </Paper>

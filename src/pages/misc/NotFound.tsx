@@ -1,5 +1,8 @@
 import { Box, Container, Typography } from "@mui/material";
-import { PrimaryButton } from "../../components/common/Buttons";
+import {
+  PrimaryButton,
+  SecondaryButton,
+} from "../../components/common/Buttons";
 import { useNavigate } from "react-router-dom";
 
 export default function NotFound() {
@@ -23,7 +26,12 @@ export default function NotFound() {
         <Typography variant="h6">
           The page you were looking for doesn't seem to exist 🤔
         </Typography>
-        <PrimaryButton onClick={() => navigate(-1)}>Go back</PrimaryButton>
+        <Box className="flex gap-4">
+          <SecondaryButton onClick={() => navigate(-1)}>
+            Go back
+          </SecondaryButton>
+          <PrimaryButton href="/">Landing page</PrimaryButton>
+        </Box>
       </Container>
     </Box>
   );

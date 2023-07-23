@@ -192,7 +192,7 @@ export default function Terms() {
         <Typography variant="body1" gutterBottom>
           If you have any questions or concerns about these terms and conditions
           or the privacy policy, please contact us on{" "}
-          <Link href="https://discordapp.com/users/1127377226548117585">
+          <Link href="https://discordapp.com/users/499246244842176512">
             Discord
           </Link>
         </Typography>

@@ -13,11 +13,20 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { SnackbarContext } from "../../../components/context/SnackbarContext";
 import { firestore } from "../../../firebase";
-import { UserData } from "../Graph/ManagePoll/util";
 import { getLocalizedTime } from "../../../components/common/RTGraph/useCandlestick";
 import { UTCTimestamp } from "lightweight-charts";
 import LineChart from "./LineChart";
 import { Info } from "@mui/icons-material";
+
+type UserData = {
+  history: {
+    maxApproval: number;
+    maxDisapproval: number;
+    maxParticipants: number;
+    timestamp: Timestamp;
+  }[];
+  timePolled: number;
+};
 
 export default function Dashboard() {
   const [isLoading, setLoading] = useState(true);
@@ -67,7 +76,7 @@ export default function Dashboard() {
           >
             <Box className="flex items-center justify-between">
               <Typography variant="h5">Past peak approvals :</Typography>
-              <Tooltip title="Score stats are only calculated when you close the poll yourself">
+              <Tooltip title="Score stats are aggregated after closing each poll">
                 <Info />
               </Tooltip>
             </Box>
@@ -76,7 +85,7 @@ export default function Dashboard() {
             ) : data ? (
               <LineChart
                 id="approvals"
-                data={data.history.map((point) => ({
+                data={data.history.map((point: any) => ({
                   time: getLocalizedTime(
                     point.timestamp.seconds
                   ) as UTCTimestamp,

@@ -39,10 +39,9 @@ export default function PublicPoll() {
   const { pollId } = useParams();
   const { dispatch } = useContext(SnackbarContext);
   const [state, pollDispatch] = usePoll();
-  console.log("re-render");
+
   const closePollPublic = useCallback(
     async (userID: string) => {
-      console.log("closing poll");
       const deleteRequest = httpsCallable(functions, "removePoll");
       await deleteRequest({ pollID: pollId, userID });
       dispatch({
@@ -78,7 +77,7 @@ export default function PublicPoll() {
       },
     });
   }, []);
-  console.log("rerender");
+
   // hydrate page
   useEffect(() => {
     try {

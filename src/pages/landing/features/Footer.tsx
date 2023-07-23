@@ -34,7 +34,7 @@ export default function FooterSection() {
           </MUILink>
           <MUILink
             component={RouterLink}
-            to="https://discordapp.com/users/1127377226548117585"
+            to="https://discordapp.com/users/499246244842176512"
             className="font-sans text-white"
             underline="none"
           >

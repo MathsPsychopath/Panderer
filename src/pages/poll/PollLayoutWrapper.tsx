@@ -100,10 +100,7 @@ export default function PollWrapper({
         );
         setPrevState(nextState);
         localStorage.setItem(`vote-${pollID}`, nextState);
-        if (!prevState) {
-          console.log(poll);
-          return poll;
-        }
+        if (!prevState) return poll;
         poll[prevState] = (poll[prevState] || 0) - 1;
         return poll;
       }).catch((error) => {

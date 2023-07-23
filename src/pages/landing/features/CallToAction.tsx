@@ -23,7 +23,7 @@ export default function CallToAction() {
           </PrimaryButton>
           <SecondaryButton
             className="py-2"
-            href="https://discordapp.com/users/1127377226548117585"
+            href="https://discordapp.com/users/499246244842176512"
           >
             Contact support
           </SecondaryButton>

@@ -79,6 +79,7 @@ function PollDialog({ isDialogOpen, setDialog }: IPollDialog) {
         maxApprovers: 0,
         maxDisapprovers: 0,
         maxParticipants: 0,
+        timeStarted: started,
       });
       setLoading(false);
       pollDispatch({

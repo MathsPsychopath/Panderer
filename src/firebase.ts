@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
-import { getFunctions } from "firebase/functions";
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 
 if (!import.meta.env.VITE_FIREBASE_API_KEY)
   throw new Error("Undefined firebase api key");
@@ -23,4 +23,4 @@ export const rtDB = getDatabase(app);
 export const firestore = getFirestore(app);
 export const functions = getFunctions(app);
 export const auth = getAuth(app);
-// connectFunctionsEmulator(functions, "127.0.0.1", 5000);
+connectFunctionsEmulator(functions, "127.0.0.1", 5001);

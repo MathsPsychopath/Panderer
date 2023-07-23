@@ -2,7 +2,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { useCallback, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import NotFound from "../misc/NotFound";
-import { app, firestore, rtDB } from "../../firebase";
+import { app, firestore, functions, rtDB } from "../../firebase";
 import { SnackbarContext } from "../../components/context/SnackbarContext";
 import {
   Timestamp,
@@ -25,6 +25,7 @@ import {
   ReCaptchaV3Provider,
 } from "firebase/app-check";
 import usePoll from "./reducer";
+import { httpsCallable } from "firebase/functions";
 
 export type TPollMetadata = {
   creator: string;
@@ -38,52 +39,77 @@ export default function PublicPoll() {
   const { pollId } = useParams();
   const { dispatch } = useContext(SnackbarContext);
   const [state, pollDispatch] = usePoll();
+  console.log("re-render");
+  const closePollPublic = useCallback(
+    async (userID: string) => {
+      console.log("closing poll");
+      const deleteRequest = httpsCallable(functions, "removePoll");
+      await deleteRequest({ pollID: pollId, userID });
+      dispatch({
+        type: "SET_ALERT",
+        severity: "error",
+        msg: "This poll has expired. Contact your organiser for more info.",
+      });
+      pollDispatch({ type: "SET_INVALID" });
+      return;
+    },
+    [pollId]
+  );
 
   const tryApplyMetadata = useCallback(async () => {
+    // check in database for pollID
+    const docRef = query(
+      collection(firestore, "live-polls"),
+      where("pollID", "==", pollId)
+    );
+    const docSnaps = await getDocs(docRef);
+    if (docSnaps.empty) {
+      pollDispatch({ type: "SET_INVALID" });
+      throw new Error("Could not find poll");
+    }
+    // if exists, then get user ID and get meta data
+    const metadata = docSnaps.docs[0].data() as TPollMetadata;
+    const userID = docSnaps.docs[0].id;
+    pollDispatch({
+      type: "SET_VALID",
+      data: {
+        userID,
+        ...metadata,
+      },
+    });
+  }, []);
+  console.log("rerender");
+  // hydrate page
+  useEffect(() => {
     try {
-      // check in database for pollID
-      const docRef = query(
-        collection(firestore, "live-polls"),
-        where("pollID", "==", pollId)
-      );
-      const docSnaps = await getDocs(docRef);
-      if (docSnaps.empty) {
-        pollDispatch({ type: "SET_INVALID" });
-        throw new Error("Could not find poll");
-      }
-      // if exists, then get user ID and get meta data
-      const metadata = docSnaps.docs[0].data() as TPollMetadata;
-      const userID = docSnaps.docs[0].id;
-      pollDispatch({
-        type: "SET_VALID",
-        data: {
-          userID,
-          ...metadata,
-        },
-      });
-      // connect with poll/userid and handle value stream
-      const pollRef = ref(rtDB, `polls/${pollId}`);
-      onValue(pollRef, async (snapshot) => {
-        const pollData = snapshot.val();
-        if (!pollData) return;
-        const usableData: TUsableData = {
-          ...(pollData as TLiveDataResult),
-          time: pollData.timestamp.seconds as UTCTimestamp,
-        };
-        pollDispatch({ type: "SET_LATEST_DATA", data: usableData });
-      });
-    } catch (error) {
+      tryApplyMetadata();
+    } catch {
       dispatch({
         type: "SET_ALERT",
         severity: "error",
         msg: "Could not get poll data. Is this link valid?",
       });
+      return;
     }
-  }, []);
-
-  // hydrate page
-  useEffect(() => {
-    tryApplyMetadata();
+    // connect with poll/userid and handle value stream
+    const pollRef = ref(rtDB, `polls/${pollId}`);
+    const unsub = onValue(pollRef, async (snapshot) => {
+      const pollData = snapshot.val();
+      if (!pollData) return;
+      const usableData: TUsableData = {
+        ...(pollData as TLiveDataResult),
+        time: pollData.timestamp.seconds as UTCTimestamp,
+      };
+      if (Date.now() / 1000 - usableData.timeStarted.seconds > 900) {
+        // close the poll
+        await closePollPublic(usableData.userID);
+        return;
+      }
+      pollDispatch({ type: "SET_LATEST_DATA", data: usableData });
+    });
+    return () => {
+      unsub();
+    };
   }, []);
 
   // recaptcha
@@ -121,8 +147,7 @@ export default function PublicPoll() {
       started={state.metadata.started}
       title={state.metadata.title}
       pollID={pollId!}
-      pollData={state.pollData}
-      invalidatePoll={() => pollDispatch({ type: "SET_INVALID" })}
+      pollData={state.pollData!}
     >
       <Box className="h-80 w-full">
         <RealTimeGraph net={state.net} timestamp={state.pollData?.time} />

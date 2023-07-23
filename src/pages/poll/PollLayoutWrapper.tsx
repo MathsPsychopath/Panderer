@@ -28,6 +28,7 @@ import { Timestamp } from "firebase/firestore";
 import { SnackbarContext } from "../../components/context/SnackbarContext";
 import { getLocalizedTime } from "../../components/common/RTGraph/useCandlestick";
 import logo from "./android-chrome-192x192.png";
+import usePoll from "./reducer";
 
 type TPollLayoutInfo = TPollMetadata & {
   children: React.ReactNode;
@@ -36,7 +37,17 @@ type TPollLayoutInfo = TPollMetadata & {
 
 type State = "abstained" | "approvers" | "disapprovers";
 
-type InvalidatePoll = { invalidatePoll: () => void };
+// this displays the incorrect time +1 hr for some reason
+const timeString = (s: number) => {
+  const time = getLocalizedTime(s);
+  const localDate = new Date(time * 1000);
+  const hours = localDate.getHours();
+  const minutes = localDate.getMinutes();
+  return `${hours}:${(minutes < 10 ? "0" : "") + minutes} ${
+    hours < 12 ? "AM" : "PM"
+  }`;
+};
+
 // handles layout for the public facing poll value
 export default function PollWrapper({
   creator,
@@ -46,26 +57,30 @@ export default function PollWrapper({
   children,
   pollID,
   pollData,
-  invalidatePoll,
-}: TPollLayoutInfo & InvalidatePoll) {
+}: TPollLayoutInfo) {
   const pollRef = useRef(ref(rtDB, `polls/${pollID}`));
   const [prevState, setPrevState] = useState<State | null>(null);
   const { dispatch } = useContext(SnackbarContext);
   const [disabled, setDisabled] = useState(false);
   const [progress, setProgress] = useState(100);
+  const [state] = usePoll();
+
+  // i can still press buttons when the live poll is removed
 
   const handleClick = useCallback(
-    (nextState: State) => {
-      runTransaction(pollRef.current, (poll: TLiveDataResult) => {
-        if (!poll) {
-          dispatch({
-            type: "SET_ALERT",
-            severity: "error",
-            msg: "Could not update value. Is the poll closed?",
-          });
-          invalidatePoll();
-          return;
-        }
+    async (nextState: State) => {
+      await runTransaction(pollRef.current, (poll: TLiveDataResult | null) => {
+        if (!poll)
+          return {
+            userID: state.isValid ? state.metadata.userID : "unknown",
+            timestamp: started,
+            approvers: 0,
+            abstained: 0,
+            disapprovers: 0,
+            maxApprovers: 0,
+            maxDisapprovers: 0,
+            maxParticipants: 0,
+          };
         poll.timestamp = Timestamp.fromMillis(
           getLocalizedTime(Math.floor(Date.now() / 1000)) * 1000
         );
@@ -83,12 +98,21 @@ export default function PollWrapper({
           poll.maxParticipants,
           poll.approvers + poll.disapprovers + poll.abstained - 1
         );
-        console.log(poll);
         setPrevState(nextState);
         localStorage.setItem(`vote-${pollID}`, nextState);
-        if (!prevState) return poll;
+        if (!prevState) {
+          console.log(poll);
+          return poll;
+        }
         poll[prevState] = (poll[prevState] || 0) - 1;
         return poll;
+      }).catch((error) => {
+        console.error(error);
+        dispatch({
+          type: "SET_ALERT",
+          severity: "error",
+          msg: "Could not update value. Is the poll closed?",
+        });
       });
 
       setDisabled(true);
@@ -104,7 +128,7 @@ export default function PollWrapper({
         });
       }, 500);
     },
-    [prevState]
+    [prevState, state]
   );
 
   const storageListener = useCallback(() => {
@@ -123,17 +147,6 @@ export default function PollWrapper({
       removeEventListener("storage", storageListener);
     };
   }, []);
-
-  const timeString = (s: number) => {
-    const time = getLocalizedTime(s);
-    const localDate = new Date(time * 1000);
-    const hours = localDate.getHours();
-    const minutes = localDate.getMinutes();
-    return `${hours}:${(minutes < 10 ? "0" : "") + minutes} ${
-      hours < 12 ? "AM" : "PM"
-    }`;
-  };
-
   return (
     <Box className="h-screen bg-secondary-button">
       <Box className="mx-auto flex flex-col items-center justify-evenly gap-1 sm:w-[40rem] md:w-[50rem]">

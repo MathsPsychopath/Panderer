@@ -28,7 +28,7 @@ import { UTCTimestamp } from "lightweight-charts";
 import { httpsCallable } from "firebase/functions";
 
 export type TLiveDataResult = {
-  userId: string;
+  userID: string;
   timestamp: Timestamp;
   approvers: number;
   abstained: number;
@@ -36,6 +36,7 @@ export type TLiveDataResult = {
   maxApprovers: number;
   maxParticipants: number;
   maxDisapprovers: number;
+  timeStarted: Timestamp;
 };
 
 export type TUsableData = Omit<TLiveDataResult, "timestamp"> & {
@@ -108,7 +109,7 @@ export default function ManagePoll({
     const net = pollData.approvers - pollData.disapprovers;
     setNet(net);
     // expire poll after 15 minutes when signed in open
-    if (Date.now() - state.started.getTime() > 900000) {
+    if (Date.now() / 1000 - usableData.timeStarted.seconds > 900) {
       setExpiryDialog(true);
       await closePolls(true);
     }

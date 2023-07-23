@@ -11,15 +11,17 @@ type BaseState = {
   net: number;
 };
 
-type State = BaseState &
-  (
-    | { isValid: false }
-    | {
-        isValid: true;
-        metadata: Metadata;
-        pollData?: TUsableData;
-      }
-  );
+type InvalidState = BaseState & {
+  isValid: false;
+};
+
+type ValidState = BaseState & {
+  isValid: true;
+  metadata: Metadata;
+  pollData: TUsableData | null;
+};
+
+type State = InvalidState | ValidState;
 
 type Action =
   | {
@@ -48,7 +50,7 @@ const reducer = (state: State, action: Action): State => {
         metadata: action.data,
         isValid: true,
         isLoading: false,
-        pollData: undefined,
+        pollData: null,
       };
     // Caller should set the metadata before updating with streamed data
     case "SET_LATEST_DATA":
@@ -56,12 +58,11 @@ const reducer = (state: State, action: Action): State => {
         throw Error("Metadata not defined before setting poll data");
       const { approvers, disapprovers } = action.data;
       return {
-        ...state,
+        ...(state as ValidState),
         pollData: action.data,
-        isValid: true,
         isLoading: false,
         net: approvers - disapprovers,
-      } as State & { metadata: Metadata };
+      };
     default:
       return state;
   }

@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import ManagePoll from "./ManagePoll/ManagePoll";
 import { doc, getDoc } from "firebase/firestore";
 import { signInWithCustomToken } from "firebase/auth";
+import { ExpiryDialog } from "../../../components/common/ExpiryDialog";
 
 export default function Graph() {
   // Check that they haven't already started a polling instance
@@ -18,6 +19,7 @@ export default function Graph() {
 
   const { state, dispatch } = useContext(GraphContext);
   const [isLoading, setLoading] = useState(true);
+  const [isDialogOpen, setOpen] = useState(false);
   const { user } = useUser();
   const { getToken } = useAuth();
   const { dispatch: snackbarDispatch } = useContext(SnackbarContext);
@@ -66,6 +68,11 @@ export default function Graph() {
     enabled: false,
   });
 
+  const handlePollExpiryExit = useCallback(() => {
+    dispatch({ type: "CLOSE_POLL" });
+    setOpen(false);
+  }, []);
+
   const handleVisChange = useCallback(async () => {
     if (!document.hidden && !auth.currentUser) {
       const token = await getToken({ template: "integration_firebase" });
@@ -85,12 +92,16 @@ export default function Graph() {
 
   return (
     <>
+      <ExpiryDialog
+        onDialogClose={handlePollExpiryExit}
+        isDialogOpen={isDialogOpen}
+      />
       {isLoading ? (
         <Box className="flex h-screen w-full items-center justify-center">
           <CircularProgress />
         </Box>
       ) : state.isOpen ? (
-        <ManagePoll />
+        <ManagePoll setExpiryDialog={setOpen} />
       ) : (
         <StartPoll />
       )}

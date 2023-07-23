@@ -93,14 +93,17 @@ export default function ManagePoll({
     [state.pollID]
   );
 
-  // setTimeout 15 minutes, closePoll() and bring up modal
-  // do this on both public and signed in pages
-  // add help page images
+  // refactor GraphContext, usePoll to remove redundant information
+  // look at source, modification, end
 
   // update latest data and check if session expired
   const handleLiveData = useCallback(async (snapshot: DataSnapshot) => {
     const pollData = snapshot.val();
-    if (!pollData) return;
+    if (!pollData) {
+      dispatch({ type: "CLOSE_POLL" });
+      setExpiryDialog(true);
+      return;
+    }
     const usableData: TUsableData = {
       ...(pollData as TLiveDataResult),
       time: pollData.timestamp.seconds as UTCTimestamp,

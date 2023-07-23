@@ -95,7 +95,15 @@ export default function PublicPoll() {
     const pollRef = ref(rtDB, `polls/${pollId}`);
     const unsub = onValue(pollRef, async (snapshot) => {
       const pollData = snapshot.val();
-      if (!pollData) return;
+      if (!pollData) {
+        pollDispatch({ type: "SET_INVALID" });
+        dispatch({
+          type: "SET_ALERT",
+          severity: "error",
+          msg: "This poll has expired. Contact your organiser for more info.",
+        });
+        return;
+      }
       const usableData: TUsableData = {
         ...(pollData as TLiveDataResult),
         time: pollData.timestamp.seconds as UTCTimestamp,
